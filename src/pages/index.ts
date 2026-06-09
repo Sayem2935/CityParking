@@ -1,0 +1,9 @@
+export { default as LoginPage } from "./LoginPage";
+export { default as RegisterPage } from "./RegisterPage";
+export { default as DashboardPage } from "./DashboardPage";
+export { default as ProfilePage } from "./ProfilePage";
+export { default as EditProfilePage } from "./EditProfilePage";
+export { default as VehiclesPage } from "./VehiclesPage";
+export { default as AddVehiclePage } from "./AddVehiclePage";
+export { default as EditVehiclePage } from "./EditVehiclePage";
+export { default as NotFoundPage } from "./NotFoundPage";

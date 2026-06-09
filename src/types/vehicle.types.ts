@@ -1,0 +1,30 @@
+export type VehicleType = "car" | "motorcycle" | "bus" | "van";
+
+export interface Vehicle {
+  id: string;
+  vehicleNumber: string;
+  vehicleType: VehicleType;
+  vehicleBrand: string;
+  vehicleModel: string;
+  vehicleColor: string;
+  isPrimary: boolean;
+  createdAt: string;
+}
+
+export interface AddVehicleData {
+  vehicleNumber: string;
+  vehicleType: VehicleType;
+  vehicleBrand: string;
+  vehicleModel: string;
+  vehicleColor: string;
+}
+
+export interface UpdateVehicleData extends AddVehicleData {
+  id: string;
+}
+
+export interface VehicleState {
+  vehicles: Vehicle[];
+  isLoading: boolean;
+  error: string | null;
+}
