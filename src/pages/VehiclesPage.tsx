@@ -87,19 +87,19 @@ const VehiclesPage: React.FC = () => {
   // Loading skeleton
   if (isLoading && vehicles.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
+      <div className="min-h-screen bg-zinc-800/50/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded-lg w-48" />
-            <div className="h-4 bg-gray-200 rounded-lg w-64" />
+            <div className="h-8 bg-zinc-700 rounded-lg w-48" />
+            <div className="h-4 bg-zinc-700 rounded-lg w-64" />
             <div className="flex gap-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-10 bg-gray-200 rounded-xl w-24" />
+                <div key={i} className="h-10 bg-zinc-700 rounded-xl w-24" />
               ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-2xl" />
+                <div key={i} className="h-64 bg-zinc-700 rounded-2xl" />
               ))}
             </div>
           </div>
@@ -109,7 +109,7 @@ const VehiclesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-zinc-800/50/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Toast */}
         {showToast && (
@@ -136,8 +136,8 @@ const VehiclesPage: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 animate-fade-in">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Vehicles</h1>
-            <p className="mt-1 text-gray-500">
+            <h1 className="text-3xl font-bold text-zinc-100">My Vehicles</h1>
+            <p className="mt-1 text-zinc-500">
               Manage your registered vehicles for smart parking
             </p>
           </div>
@@ -188,7 +188,7 @@ const VehiclesPage: React.FC = () => {
                   placeholder="Search vehicles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 py-2.5 text-sm font-medium text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20"
+                  className="w-full rounded-xl border border-white/10 bg-zinc-900/80 backdrop-blur-md pl-11 pr-4 py-2.5 text-sm font-medium text-zinc-100 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20"
                 />
               </div>
 
@@ -201,7 +201,7 @@ const VehiclesPage: React.FC = () => {
                     className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
                       filterType === type.value
                         ? "bg-city-blue-500 text-white shadow-sm"
-                        : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                        : "bg-zinc-900/80 backdrop-blur-md text-zinc-400 border border-white/10 hover:bg-zinc-800/50"
                     }`}
                   >
                     {type.label}
@@ -211,7 +211,7 @@ const VehiclesPage: React.FC = () => {
             </div>
 
             {/* Vehicle count */}
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-zinc-500 mb-4">
               Showing {filteredVehicles.length} of {vehicles.length} vehicle
               {vehicles.length !== 1 ? "s" : ""}
             </p>
@@ -220,7 +220,7 @@ const VehiclesPage: React.FC = () => {
             {filteredVehicles.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <span className="text-3xl mb-3">🔍</span>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-zinc-500">
                   No vehicles found matching your search.
                 </p>
               </div>

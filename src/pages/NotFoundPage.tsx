@@ -4,14 +4,14 @@ import { Button } from '../components';
 
 const NotFoundPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-800/50/50 px-4">
       <div className="text-center animate-fade-in">
         <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-city-blue-50 mx-auto mb-8">
           <span className="text-5xl">🚗</span>
         </div>
-        <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-gray-700 mb-2">Parking Spot Not Found</h2>
-        <p className="text-gray-500 mb-8 max-w-md mx-auto">
+        <h1 className="text-6xl font-bold text-zinc-100 mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-zinc-300 mb-2">Parking Spot Not Found</h2>
+        <p className="text-zinc-500 mb-8 max-w-md mx-auto">
           The page you're looking for seems to have driven off. 
           Let's get you back to the dashboard.
         </p>

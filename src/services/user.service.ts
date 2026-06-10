@@ -1,101 +1,60 @@
-import type { User, UpdateProfileData, ApiError } from "@/types";
-import { storage } from "@/utils";
+import api from './api';
+import type { ApiResponse } from '@/types/api.types';
+import type { User, UpdateProfileData } from '../types';
 
-// Simulate network delay
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+// Backend User response from GET /api/user/profile
+interface BackendUserResponse {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  isActive: boolean;
+  role: string;
+  vehicleCount: number;
+  hasFaceEnrollment: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const simulateLatency = (): Promise<void> => delay(300 + Math.random() * 500);
+// Re-export for consumers that import from user.service
+export type { UpdateProfileData };
 
-// Mock user database (same keys as auth service)
-const USERS_DB_KEY = "parking_mock_users_db";
+function mapBackendUser(backend: BackendUserResponse): User {
+  return {
+    id: String(backend.id),
+    firstName: backend.firstName,
+    lastName: backend.lastName,
+    email: backend.email,
+    phone: backend.phone ?? undefined,
+    avatar: backend.avatarUrl ?? undefined,
+    role: backend.role ?? 'USER',
+    isVerified: backend.isActive ?? false,
+    createdAt: backend.createdAt,
+    updatedAt: backend.updatedAt,
+  };
+}
 
-const getMockUsersDb = (): Record<string, { user: User; passwordHash: string }> => {
-  try {
-    const data = localStorage.getItem(USERS_DB_KEY);
-    return data ? JSON.parse(data) : {};
-  } catch {
-    return {};
-  }
-};
-
-const saveMockUsersDb = (db: Record<string, { user: User; passwordHash: string }>): void => {
-  localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
-};
-
-export const userService = {
+class UserService {
   async getProfile(): Promise<User> {
-    await simulateLatency();
-
-    const currentUser = storage.getUser<User>();
-
-    if (!currentUser) {
-      const error: ApiError = {
-        message: "User not found. Please log in again.",
-        code: "USER_NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    // Get the latest data from mock DB
-    const db = getMockUsersDb();
-    const entry = db[currentUser.email];
-
-    if (!entry) {
-      const error: ApiError = {
-        message: "User not found in database.",
-        code: "USER_NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    return entry.user;
-  },
+    const response = await api.get<ApiResponse<BackendUserResponse>>('/user/profile');
+    const backendUser = response.data.data;
+    return mapBackendUser(backendUser);
+  }
 
   async updateProfile(data: UpdateProfileData): Promise<User> {
-    await simulateLatency();
+    // Map frontend fields to backend UpdateProfileRequest
+    const backendPayload: Record<string, string> = {};
+    if (data.firstName !== undefined) backendPayload.firstName = data.firstName;
+    if (data.lastName !== undefined) backendPayload.lastName = data.lastName;
+    if (data.phone !== undefined) backendPayload.phone = data.phone;
+    if (data.avatarUrl !== undefined) backendPayload.avatarUrl = data.avatarUrl;
 
-    const currentUser = storage.getUser<User>();
+    const response = await api.put<ApiResponse<BackendUserResponse>>('/user/profile', backendPayload);
+    const backendUser = response.data.data;
+    return mapBackendUser(backendUser);
+  }
+}
 
-    if (!currentUser) {
-      const error: ApiError = {
-        message: "User not found. Please log in again.",
-        code: "USER_NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    const db = getMockUsersDb();
-    const entry = db[currentUser.email];
-
-    if (!entry) {
-      const error: ApiError = {
-        message: "User not found in database.",
-        code: "USER_NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    // Update user data
-    const updatedUser: User = {
-      ...entry.user,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.phone || entry.user.phone,
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Save to mock DB
-    db[currentUser.email] = { ...entry, user: updatedUser };
-    saveMockUsersDb(db);
-
-    // Update local storage
-    storage.setUser(updatedUser);
-
-    return updatedUser;
-  },
-};
+export const userService = new UserService();

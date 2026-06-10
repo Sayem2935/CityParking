@@ -10,7 +10,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ children, className = '', variant = 'default', padding = 'md', hover = false }) => {
   const variants = {
-    default: 'bg-white border border-gray-100 shadow-card',
+    default: 'bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-card',
     glass: 'glass-card',
     gradient: 'gradient-city-light border border-white/50 shadow-card',
   };

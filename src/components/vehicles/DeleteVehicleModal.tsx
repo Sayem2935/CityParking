@@ -25,10 +25,10 @@ const DeleteVehicleModal: React.FC<DeleteVehicleModalProps> = ({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl animate-slide-up">
+      <div className="relative w-full max-w-md mx-4 bg-zinc-900/80 backdrop-blur-md rounded-2xl shadow-2xl animate-slide-up">
         <div className="p-6">
           {/* Icon */}
-          <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 rounded-full bg-red-50">
+          <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 rounded-full bg-red-900/30">
             <svg
               className="h-7 w-7 text-red-500"
               fill="none"
@@ -45,19 +45,19 @@ const DeleteVehicleModal: React.FC<DeleteVehicleModalProps> = ({
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+          <h3 className="text-lg font-bold text-zinc-100 text-center mb-2">
             Delete Vehicle
           </h3>
 
           {/* Message */}
-          <p className="text-sm text-gray-500 text-center mb-2">
+          <p className="text-sm text-zinc-500 text-center mb-2">
             Are you sure you want to delete this vehicle?
           </p>
-          <div className="bg-gray-50 rounded-xl p-3 mb-6">
-            <p className="text-sm font-bold text-gray-900 text-center">
+          <div className="bg-zinc-800/50 rounded-xl p-3 mb-6">
+            <p className="text-sm font-bold text-zinc-100 text-center">
               {vehicle.vehicleNumber}
             </p>
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-zinc-500 text-center">
               {vehicle.vehicleBrand} {vehicle.vehicleModel} •{" "}
               {vehicle.vehicleColor}
             </p>

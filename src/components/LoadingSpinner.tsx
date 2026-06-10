@@ -25,7 +25,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', variant = 
             />
           ))}
         </div>
-        {text && <p className="text-sm text-gray-500">{text}</p>}
+        {text && <p className="text-sm text-zinc-500">{text}</p>}
       </div>
     );
   }
@@ -33,9 +33,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', variant = 
   if (variant === 'skeleton') {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded-lg w-3/4" />
-        <div className="h-4 bg-gray-200 rounded-lg w-1/2" />
-        <div className="h-4 bg-gray-200 rounded-lg w-5/6" />
+        <div className="h-4 bg-zinc-700 rounded-lg w-3/4" />
+        <div className="h-4 bg-zinc-700 rounded-lg w-1/2" />
+        <div className="h-4 bg-zinc-700 rounded-lg w-5/6" />
       </div>
     );
   }
@@ -43,10 +43,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', variant = 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-12">
       <div className="relative">
-        <div className={`${sizes[size]} rounded-full border-2 border-gray-200`} />
+        <div className={`${sizes[size]} rounded-full border-2 border-white/10`} />
         <div className={`absolute inset-0 ${sizes[size]} rounded-full border-2 border-transparent border-t-city-blue-500 animate-spin`} />
       </div>
-      {text && <p className="text-sm text-gray-500 font-medium">{text}</p>}
+      {text && <p className="text-sm text-zinc-500 font-medium">{text}</p>}
     </div>
   );
 };

@@ -35,14 +35,14 @@ const EditVehiclePage: React.FC = () => {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
+      <div className="min-h-screen bg-zinc-800/50/50">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col items-center justify-center py-16">
             <span className="text-4xl mb-4">🚗</span>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-bold text-zinc-100 mb-2">
               Vehicle Not Found
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-zinc-500 mb-6">
               The vehicle you're looking for doesn't exist.
             </p>
             <button
@@ -58,7 +58,7 @@ const EditVehiclePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-zinc-800/50/50">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Toast */}
         {showToast && (
@@ -86,7 +86,7 @@ const EditVehiclePage: React.FC = () => {
         <div className="mb-8 animate-fade-in">
           <button
             onClick={() => navigate("/vehicles")}
-            className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors mb-4"
+            className="inline-flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors mb-4"
           >
             <svg
               className="h-4 w-4"
@@ -103,15 +103,15 @@ const EditVehiclePage: React.FC = () => {
             </svg>
             Back to Vehicles
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Vehicle</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-3xl font-bold text-zinc-100">Edit Vehicle</h1>
+          <p className="mt-1 text-zinc-500">
             Update your vehicle information
           </p>
         </div>
 
         {/* Form Card */}
         {vehicle ? (
-          <div className="rounded-2xl bg-white border border-gray-100 shadow-card p-6 sm:p-8 animate-fade-in">
+          <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-card p-6 sm:p-8 animate-fade-in">
             <VehicleForm
               vehicle={vehicle}
               onSubmit={handleSubmit}
@@ -120,16 +120,16 @@ const EditVehiclePage: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="rounded-2xl bg-white border border-gray-100 shadow-card p-6 sm:p-8 animate-pulse">
+          <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-card p-6 sm:p-8 animate-pulse">
             <div className="space-y-6">
-              <div className="h-6 bg-gray-200 rounded-lg w-32" />
+              <div className="h-6 bg-zinc-700 rounded-lg w-32" />
               <div className="grid grid-cols-4 gap-3">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-200 rounded-xl" />
+                  <div key={i} className="h-20 bg-zinc-700 rounded-xl" />
                 ))}
               </div>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded-xl" />
+                <div key={i} className="h-12 bg-zinc-700 rounded-xl" />
               ))}
             </div>
           </div>

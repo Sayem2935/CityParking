@@ -18,7 +18,7 @@ const AddVehiclePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-zinc-800/50/50">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Toast */}
         {showToast && (
@@ -46,7 +46,7 @@ const AddVehiclePage: React.FC = () => {
         <div className="mb-8 animate-fade-in">
           <button
             onClick={() => navigate("/vehicles")}
-            className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors mb-4"
+            className="inline-flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors mb-4"
           >
             <svg
               className="h-4 w-4"
@@ -63,14 +63,14 @@ const AddVehiclePage: React.FC = () => {
             </svg>
             Back to Vehicles
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Add Vehicle</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-3xl font-bold text-zinc-100">Add Vehicle</h1>
+          <p className="mt-1 text-zinc-500">
             Register a new vehicle for smart parking
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="rounded-2xl bg-white border border-gray-100 shadow-card p-6 sm:p-8 animate-fade-in">
+        <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-card p-6 sm:p-8 animate-fade-in">
           <VehicleForm
             onSubmit={handleSubmit}
             onCancel={() => navigate("/vehicles")}

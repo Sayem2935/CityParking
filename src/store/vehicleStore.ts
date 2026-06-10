@@ -84,7 +84,13 @@ export const useVehicleStore = create<VehicleStore>((set, get) => ({
   setPrimaryVehicle: async (vehicleId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const updatedVehicles = await vehicleService.setPrimaryVehicle(vehicleId);
+      // Backend does not have a "set primary" endpoint;
+      // toggle locally by re-fetching and flipping the flag client-side.
+      const vehicles = await vehicleService.getVehicles();
+      const updatedVehicles = vehicles.map((v) => ({
+        ...v,
+        isPrimary: v.id === vehicleId,
+      }));
       set({ vehicles: updatedVehicles, isLoading: false });
     } catch (error) {
       const message =

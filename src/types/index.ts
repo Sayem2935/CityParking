@@ -20,3 +20,10 @@ export type {
   UpdateVehicleData,
   VehicleState,
 } from "./vehicle.types";
+
+export type {
+  EnrollmentSession,
+  RecordingStatus,
+  UploadStatus,
+  FaceEnrollmentState,
+} from "./face-enrollment.types";

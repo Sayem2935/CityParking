@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  flyway:
+    enabled: false
+
+# Force mock providers for tests
+ai:
+  provider:
+    face: mock
+    vision: mock
+
+# Gemini config for tests (not used in mock mode but required for bean initialization)
+gemini:
+  api-key: test-key
+  model: gemini-1.5-flash
+  base-url: https://generativelanguage.googleapis.com/v1beta
+  timeout:
+    connect-ms: 2000
+    read-ms: 5000
+
+# AWS config for tests (not used in mock mode but required for bean initialization)
+aws:
+  access-key-id: test-access-key
+  secret-access-key: test-secret-key
+  region: us-east-1
+  rekognition:
+    collection-id: test-collection
+    face-match-threshold: 90.0
+
+# AI Service (FastAPI removed — all AI now served by Spring Boot + Gemini)
+ai-service:
+  url: http://localhost:8080
+  connect-timeout-ms: 2000
+  read-timeout-ms: 5000
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+  rate-limit:
+    enabled: false
+  jwt:
+    secret: testSecretKeyThatIsAtLeast256BitsLongForHS256AlgorithmUsedForTesting
+    expiration-ms: 86400000

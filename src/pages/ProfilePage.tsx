@@ -1,19 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store';
+import { useAuthStore, useUserStore } from '../store';
 import { Button } from '../components';
+import { LoadingSpinner } from '../components';
+import { ErrorMessage } from '../components';
 import { VerificationBadge } from '../components/widgets';
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user: authUser } = useAuthStore();
+  const { profile, isLoading, error, fetchProfile } = useUserStore();
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  // Use the full profile from the API, fall back to auth store user
+  const user = profile || authUser;
+
+  if (isLoading && !user) {
+    return (
+      <div className="min-h-screen bg-zinc-800/50">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-zinc-800/50/50">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-4">
+            <ErrorMessage message={error} />
+          </div>
+        )}
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="mt-1 text-gray-500">Manage your account and verification status</p>
+          <h1 className="text-3xl font-bold text-zinc-100">My Profile</h1>
+          <p className="mt-1 text-zinc-500">Manage your account and verification status</p>
         </div>
 
         {/* Profile Card */}
@@ -23,10 +48,10 @@ const ProfilePage: React.FC = () => {
               {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-zinc-100">
                 {user?.firstName} {user?.lastName}
               </h2>
-              <p className="text-gray-500">{user?.email}</p>
+              <p className="text-zinc-500">{user?.email}</p>
               {user?.phone && (
                 <p className="text-gray-400 text-sm mt-1">{user.phone}</p>
               )}
@@ -50,20 +75,20 @@ const ProfilePage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-zinc-100">Personal Information</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Full Name</p>
-              <p className="text-gray-900 font-medium">{user?.firstName} {user?.lastName}</p>
+              <p className="text-zinc-100 font-medium">{user?.firstName} {user?.lastName}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Email Address</p>
-              <p className="text-gray-900 font-medium">{user?.email}</p>
+              <p className="text-zinc-100 font-medium">{user?.email}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Phone Number</p>
-              <p className="text-gray-900 font-medium">{user?.phone || 'Not provided'}</p>
+              <p className="text-zinc-100 font-medium">{user?.phone || 'Not provided'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Account Status</p>
@@ -83,10 +108,10 @@ const ProfilePage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Verification Status</h3>
+            <h3 className="text-lg font-semibold text-zinc-100">Verification Status</h3>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800/50 border border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-city-cyan-50 text-city-cyan-500">
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -95,22 +120,22 @@ const ProfilePage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Face Registration</p>
-                  <p className="text-sm text-gray-500">AI face recognition verification</p>
+                  <p className="font-medium text-zinc-100">Face Registration</p>
+                  <p className="text-sm text-zinc-500">AI face recognition verification</p>
                 </div>
               </div>
               <VerificationBadge status="pending" label="Not Registered" />
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800/50 border border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-500">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-900/30 text-purple-500">
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">ID Verification</p>
-                  <p className="text-sm text-gray-500">Government ID document verification</p>
+                  <p className="font-medium text-zinc-100">ID Verification</p>
+                  <p className="text-sm text-zinc-500">Government ID document verification</p>
                 </div>
               </div>
               <VerificationBadge status="pending" label="Not Uploaded" />
@@ -121,18 +146,18 @@ const ProfilePage: React.FC = () => {
         {/* Account Information */}
         <div className="glass-card rounded-2xl p-6 animate-slide-up" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center gap-2 mb-6">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800 text-zinc-500">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.63-3.44a.6.6 0 010-1.02l5.63-3.44a.6.6 0 01.9.52v6.84a.6.6 0 01-.9.52z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Account Information</h3>
+            <h3 className="text-lg font-semibold text-zinc-100">Account Information</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Member Since</p>
-              <p className="text-gray-900 font-medium">
+              <p className="text-zinc-100 font-medium">
                 {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -142,11 +167,11 @@ const ProfilePage: React.FC = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">User ID</p>
-              <p className="text-gray-900 font-mono text-sm">{user?.id || 'N/A'}</p>
+              <p className="text-zinc-100 font-mono text-sm">{user?.id || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400 mb-1">Last Updated</p>
-              <p className="text-gray-900 font-medium">
+              <p className="text-zinc-100 font-medium">
                 {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',

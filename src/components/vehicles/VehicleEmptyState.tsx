@@ -6,13 +6,13 @@ const VehicleEmptyState: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
-      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
+      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-zinc-800 mb-6">
         <span className="text-4xl">🚗</span>
       </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-2">
+      <h3 className="text-xl font-bold text-zinc-100 mb-2">
         No Vehicles Registered Yet
       </h3>
-      <p className="text-sm text-gray-500 text-center max-w-sm mb-8">
+      <p className="text-sm text-zinc-500 text-center max-w-sm mb-8">
         Register your vehicles to get started with smart parking. You can add
         multiple vehicles and set one as your primary.
       </p>

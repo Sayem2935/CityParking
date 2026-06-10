@@ -1,103 +1,47 @@
-import type { ApiResponse, ApiError } from "@/types";
+import axios from 'axios';
+import { storage } from '../utils';
 
-// Simulate network delay
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-// Simulate random latency (300-800ms)
-const simulateLatency = (): Promise<void> => delay(300 + Math.random() * 500);
-
-// Simulate API error (10% chance when simulateErrors is true)
-const shouldSimulateError = (simulateErrors = false): boolean =>
-  simulateErrors && Math.random() < 0.1;
-
-export const apiClient = {
-  async get<T>(_endpoint: string, simulateErrors = false): Promise<ApiResponse<T>> {
-    await simulateLatency();
-
-    if (shouldSimulateError(simulateErrors)) {
-      const error: ApiError = {
-        message: "Network error. Please try again.",
-        status: 500,
-        code: "NETWORK_ERROR",
-      };
-      throw error;
-    }
-
-    // This would normally make an HTTP GET request
-    // For now, it's a passthrough for mock services
-    return {
-      data: null as unknown as T,
-      message: "Success",
-      success: true,
-    };
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
   },
+});
 
-  async post<T>(
-    _endpoint: string,
-    _data?: unknown,
-    simulateErrors = false
-  ): Promise<ApiResponse<T>> {
-    await simulateLatency();
-
-    if (shouldSimulateError(simulateErrors)) {
-      const error: ApiError = {
-        message: "Server error. Please try again.",
-        status: 500,
-        code: "SERVER_ERROR",
-      };
-      throw error;
+// Request interceptor to add auth token
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = storage.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-
-    return {
-      data: null as unknown as T,
-      message: "Success",
-      success: true,
-    };
+    return config;
   },
+  (error) => Promise.reject(error)
+);
 
-  async put<T>(
-    _endpoint: string,
-    _data?: unknown,
-    simulateErrors = false
-  ): Promise<ApiResponse<T>> {
-    await simulateLatency();
+// Guard to prevent multiple simultaneous 401 redirects
+let isRedirectingToLogin = false;
 
-    if (shouldSimulateError(simulateErrors)) {
-      const error: ApiError = {
-        message: "Server error. Please try again.",
-        status: 500,
-        code: "SERVER_ERROR",
-      };
-      throw error;
+// Response interceptor for error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Only handle actual 401 responses from the server (not network errors)
+    if (error.response?.status === 401) {
+      // Don't redirect if we're already on the login page or already redirecting
+      const currentPath = window.location.pathname;
+      if (!isRedirectingToLogin && currentPath !== '/login') {
+        isRedirectingToLogin = true;
+        storage.clearAll();
+        window.location.href = '/login';
+      }
     }
+    return Promise.reject(error);
+  }
+);
 
-    return {
-      data: null as unknown as T,
-      message: "Success",
-      success: true,
-    };
-  },
-
-  async delete<T>(
-    _endpoint: string,
-    simulateErrors = false
-  ): Promise<ApiResponse<T>> {
-    await simulateLatency();
-
-    if (shouldSimulateError(simulateErrors)) {
-      const error: ApiError = {
-        message: "Server error. Please try again.",
-        status: 500,
-        code: "SERVER_ERROR",
-      };
-      throw error;
-    }
-
-    return {
-      data: null as unknown as T,
-      message: "Success",
-      success: true,
-    };
-  },
-};
+export { apiClient };
+export default apiClient;

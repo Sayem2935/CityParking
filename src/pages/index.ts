@@ -7,3 +7,4 @@ export { default as VehiclesPage } from "./VehiclesPage";
 export { default as AddVehiclePage } from "./AddVehiclePage";
 export { default as EditVehiclePage } from "./EditVehiclePage";
 export { default as NotFoundPage } from "./NotFoundPage";
+export { default as FaceEnrollmentPage } from "./FaceEnrollmentPage";

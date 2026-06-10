@@ -13,7 +13,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-lg border border-red-200 bg-red-50 p-4 animate-fade-in ${className}`}
+      className={`rounded-lg border border-red-200 bg-red-900/30 p-4 animate-fade-in ${className}`}
       role="alert"
     >
       <div className="flex items-start">
@@ -39,7 +39,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex rounded-md bg-red-50 px-2 py-1 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+              className="inline-flex rounded-md bg-red-900/30 px-2 py-1 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
             >
               Retry
             </button>

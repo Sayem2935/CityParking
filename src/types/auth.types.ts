@@ -5,6 +5,8 @@ export interface User {
   lastName: string;
   phone?: string;
   avatar?: string;
+  role: string;
+  isVerified: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,9 +26,10 @@ export interface RegisterData {
 }
 
 export interface UpdateProfileData {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthResponse {

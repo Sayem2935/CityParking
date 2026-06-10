@@ -10,7 +10,7 @@ interface QuickActionCardProps {
 
 const colorMap = {
   blue: {
-    bg: 'bg-blue-50 hover:bg-blue-100',
+    bg: 'bg-blue-900/30 hover:bg-blue-100',
     icon: 'from-city-blue-500 to-city-blue-600',
     border: 'border-blue-100 hover:border-blue-200',
   },
@@ -25,7 +25,7 @@ const colorMap = {
     border: 'border-cyan-100 hover:border-cyan-200',
   },
   purple: {
-    bg: 'bg-purple-50 hover:bg-purple-100',
+    bg: 'bg-purple-900/30 hover:bg-purple-100',
     icon: 'from-purple-500 to-purple-600',
     border: 'border-purple-100 hover:border-purple-200',
   },
@@ -44,11 +44,11 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ title, description, i
           {icon}
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
-          <p className="text-sm text-gray-500">{description}</p>
+          <h3 className="font-semibold text-zinc-100 mb-1">{title}</h3>
+          <p className="text-sm text-zinc-500">{description}</p>
         </div>
       </div>
-      <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-zinc-900/80 backdrop-blur-md/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </button>
   );
 };

@@ -1,0 +1,119 @@
+version: "3.8"
+
+# ============================================================
+# CityParking - Production Docker Compose
+# ============================================================
+# Usage:
+#   1. Copy .env.example to .env and fill in production values
+#   2. docker compose -f docker-compose.yml up -d
+#   3. Verify: docker compose ps (all services healthy)
+# ============================================================
+
+services:
+  # ──────────────────────────────────────────────────────────
+  # PostgreSQL Database
+  # ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: parking-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-parking_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "${DB_PORT_EXTERNAL:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-parking_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+        reservations:
+          memory: 256M
+    networks:
+      - parking-network
+
+  # ──────────────────────────────────────────────────────────
+  # Backend (Spring Boot)
+  # ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parking-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Required - validated at startup
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-parking_db}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (min 32 chars)}
+      # Gemini AI API (replaces FastAPI AI Service)
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
+      # AWS Rekognition (Face Recognition)
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?AWS_ACCESS_KEY_ID is required}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?AWS_SECRET_ACCESS_KEY is required}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_REKOGNITION_COLLECTION_ID: ${AWS_REKOGNITION_COLLECTION_ID:-cityparking-faces}
+      AWS_FACE_MATCH_THRESHOLD: ${AWS_FACE_MATCH_THRESHOLD:-90.0}
+      # Application config
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      FILE_UPLOAD_MAX_SIZE: ${FILE_UPLOAD_MAX_SIZE:-52428800}
+      FILE_UPLOAD_DIR: ${FILE_UPLOAD_DIR:-/app/uploads}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - upload_data:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: "2.0"
+        reservations:
+          memory: 256M
+    networks:
+      - parking-network
+
+  # NOTE: FastAPI AI Service has been REMOVED.
+  # All AI functionality now uses external cloud APIs:
+  #   - Gemini API for: ANPR, vehicle detection, parking detection, analytics
+  #   - AWS Rekognition for: face enrollment, face verification
+  # See ARCHITECTURE_MIGRATION_REPORT.md for details.
+# ──────────────────────────────────────────────────────────
+# Volumes - Persistent Data
+# ──────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  upload_data:
+    driver: local
+
+# ──────────────────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────────────────
+networks:
+  parking-network:
+    driver: bridge

@@ -44,14 +44,14 @@ const RegisterPage: React.FC = () => {
       {/* Left: Branding Panel */}
       <div className="hidden lg:flex lg:w-5/12 gradient-city relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-zinc-900/80 backdrop-blur-md rounded-full blur-3xl animate-pulse-slow" />
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-city-emerald-300 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
         </div>
 
         <div className="relative z-10 flex flex-col justify-center px-12 text-white">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm text-3xl">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900/80 backdrop-blur-md/20 backdrop-blur-sm text-3xl">
                 🚗
               </div>
               <div>
@@ -76,7 +76,7 @@ const RegisterPage: React.FC = () => {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3"
+                className="flex items-start gap-3 bg-zinc-900/80 backdrop-blur-md/10 backdrop-blur-sm rounded-xl px-4 py-3"
               >
                 <span className="text-xl mt-0.5">{feature.icon}</span>
                 <div>
@@ -90,21 +90,21 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* Right: Registration Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-zinc-900/80 backdrop-blur-md overflow-y-auto">
         <div className="w-full max-w-lg animate-fade-in">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-city-blue-500 text-white text-xl">🚗</div>
-            <span className="text-xl font-bold text-gray-900">City Parking</span>
+            <span className="text-xl font-bold text-zinc-100">City Parking</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
-            <p className="text-gray-500 mt-1">Get started with City Parking in seconds</p>
+            <h2 className="text-2xl font-bold text-zinc-100">Create your account</h2>
+            <p className="text-zinc-500 mt-1">Get started with City Parking in seconds</p>
           </div>
 
           {error && (
-            <div className="mb-6 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+            <div className="mb-6 flex items-center gap-2 rounded-xl bg-red-900/30 border border-red-200 p-4 text-sm text-red-700">
               <svg className="h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
@@ -186,7 +186,7 @@ const RegisterPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-[38px] text-gray-400 hover:text-zinc-400 transition-colors"
               >
                 {showPassword ? (
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -202,8 +202,8 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-2">
-              <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 text-city-blue-500 focus:ring-city-blue-500" required />
-              <span className="text-sm text-gray-500">
+              <input type="checkbox" className="mt-1 h-4 w-4 rounded border-white/20 text-city-blue-500 focus:ring-city-blue-500" required />
+              <span className="text-sm text-zinc-500">
                 I agree to City Parking's{' '}
                 <button type="button" className="text-city-blue-500 hover:underline">Terms of Service</button>
                 {' '}and{' '}
@@ -222,7 +222,7 @@ const RegisterPage: React.FC = () => {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-500">
+          <p className="mt-8 text-center text-sm text-zinc-500">
             Already have an account?{' '}
             <Link to="/login" className="font-semibold text-city-blue-500 hover:text-city-blue-600 transition-colors">
               Sign in

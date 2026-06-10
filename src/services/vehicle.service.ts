@@ -1,231 +1,123 @@
-import type { Vehicle, AddVehicleData, UpdateVehicleData, ApiError } from "@/types";
-import { storage } from "@/utils";
+import { apiClient } from "./api";
+import type {
+  Vehicle,
+  AddVehicleData,
+  UpdateVehicleData,
+  VehicleType,
+} from "@/types";
 
-// Simulate network delay
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+// Backend DTO types (as returned by the API)
+interface BackendVehicleResponse {
+  id: number;
+  licensePlate: string;
+  type: string;
+  brand: string;
+  model: string;
+  color: string;
+}
 
-const simulateLatency = (): Promise<void> => delay(300 + Math.random() * 500);
+interface BackendVehicleRequest {
+  licensePlate: string;
+  type: string;
+  brand: string;
+  model: string;
+  color: string;
+}
 
-// Mock vehicle database stored in localStorage
-const VEHICLES_DB_KEY = "parking_mock_vehicles_db";
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 
-const getVehiclesDb = (): Record<string, Vehicle[]> => {
-  try {
-    const data = localStorage.getItem(VEHICLES_DB_KEY);
-    return data ? JSON.parse(data) : {};
-  } catch {
-    return {};
-  }
+// Map backend vehicle type enum to frontend type
+const mapVehicleType = (backendType: string): VehicleType => {
+  const typeMap: Record<string, VehicleType> = {
+    CAR: "car",
+    MOTORCYCLE: "motorcycle",
+    BUS: "bus",
+    VAN: "van",
+  };
+  return typeMap[backendType.toUpperCase()] ?? "car";
 };
 
-const saveVehiclesDb = (db: Record<string, Vehicle[]>): void => {
-  localStorage.setItem(VEHICLES_DB_KEY, JSON.stringify(db));
+// Map frontend vehicle type to backend enum
+const mapToBackendType = (frontendType: VehicleType): string => {
+  const typeMap: Record<VehicleType, string> = {
+    car: "CAR",
+    motorcycle: "MOTORCYCLE",
+    bus: "BUS",
+    van: "VAN",
+  };
+  return typeMap[frontendType] ?? "CAR";
 };
 
-const generateId = (): string => {
-  return `vehicle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
+// Map backend response to frontend Vehicle type
+const mapToFrontendVehicle = (backend: BackendVehicleResponse): Vehicle => ({
+  id: String(backend.id),
+  vehicleNumber: backend.licensePlate,
+  vehicleType: mapVehicleType(backend.type),
+  vehicleBrand: backend.brand,
+  vehicleModel: backend.model,
+  vehicleColor: backend.color,
+  isPrimary: false,
+  createdAt: new Date().toISOString(),
+});
 
-const getCurrentUserId = (): string | null => {
-  const user = storage.getUser<{ id: string }>();
-  return user?.id || null;
-};
+// Map frontend AddVehicleData to backend request
+const mapToBackendRequest = (
+  data: AddVehicleData
+): BackendVehicleRequest => ({
+  licensePlate: data.vehicleNumber,
+  type: mapToBackendType(data.vehicleType),
+  brand: data.vehicleBrand,
+  model: data.vehicleModel,
+  color: data.vehicleColor,
+});
 
-export const vehicleService = {
+class VehicleService {
+  /**
+   * Fetch all vehicles for the authenticated user
+   */
   async getVehicles(): Promise<Vehicle[]> {
-    await simulateLatency();
+    const response = await apiClient.get<ApiResponse<BackendVehicleResponse[]>>(
+      "/vehicles"
+    );
+    const backendVehicles = response.data.data ?? [];
+    return backendVehicles.map(mapToFrontendVehicle);
+  }
 
-    const userId = getCurrentUserId();
-    if (!userId) {
-      const error: ApiError = {
-        message: "User not authenticated.",
-        code: "UNAUTHORIZED",
-        status: 401,
-      };
-      throw error;
-    }
-
-    const db = getVehiclesDb();
-    return db[userId] || [];
-  },
-
+  /**
+   * Add a new vehicle
+   */
   async addVehicle(data: AddVehicleData): Promise<Vehicle> {
-    await simulateLatency();
-
-    const userId = getCurrentUserId();
-    if (!userId) {
-      const error: ApiError = {
-        message: "User not authenticated.",
-        code: "UNAUTHORIZED",
-        status: 401,
-      };
-      throw error;
-    }
-
-    const db = getVehiclesDb();
-    const userVehicles = db[userId] || [];
-
-    // Check for duplicate vehicle number
-    const duplicate = userVehicles.find(
-      (v) => v.vehicleNumber.toLowerCase() === data.vehicleNumber.toLowerCase()
+    const backendRequest = mapToBackendRequest(data);
+    const response = await apiClient.post<ApiResponse<BackendVehicleResponse>>(
+      "/vehicles",
+      backendRequest
     );
-    if (duplicate) {
-      const error: ApiError = {
-        message: "A vehicle with this number already exists.",
-        code: "DUPLICATE_VEHICLE",
-        status: 409,
-      };
-      throw error;
-    }
+    return mapToFrontendVehicle(response.data.data);
+  }
 
-    const now = new Date().toISOString();
-    const newVehicle: Vehicle = {
-      id: generateId(),
-      vehicleNumber: data.vehicleNumber.toUpperCase(),
-      vehicleType: data.vehicleType,
-      vehicleBrand: data.vehicleBrand,
-      vehicleModel: data.vehicleModel,
-      vehicleColor: data.vehicleColor,
-      isPrimary: userVehicles.length === 0, // First vehicle is primary
-      createdAt: now,
-    };
-
-    userVehicles.push(newVehicle);
-    db[userId] = userVehicles;
-    saveVehiclesDb(db);
-
-    return newVehicle;
-  },
-
+  /**
+   * Update an existing vehicle
+   */
   async updateVehicle(data: UpdateVehicleData): Promise<Vehicle> {
-    await simulateLatency();
-
-    const userId = getCurrentUserId();
-    if (!userId) {
-      const error: ApiError = {
-        message: "User not authenticated.",
-        code: "UNAUTHORIZED",
-        status: 401,
-      };
-      throw error;
-    }
-
-    const db = getVehiclesDb();
-    const userVehicles = db[userId] || [];
-
-    const index = userVehicles.findIndex((v) => v.id === data.id);
-    if (index === -1) {
-      const error: ApiError = {
-        message: "Vehicle not found.",
-        code: "NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    // Check for duplicate vehicle number (excluding current vehicle)
-    const duplicate = userVehicles.find(
-      (v) =>
-        v.id !== data.id &&
-        v.vehicleNumber.toLowerCase() === data.vehicleNumber.toLowerCase()
+    const backendRequest = mapToBackendRequest(data);
+    const response = await apiClient.put<ApiResponse<BackendVehicleResponse>>(
+      `/vehicles/${data.id}`,
+      backendRequest
     );
-    if (duplicate) {
-      const error: ApiError = {
-        message: "A vehicle with this number already exists.",
-        code: "DUPLICATE_VEHICLE",
-        status: 409,
-      };
-      throw error;
-    }
+    return mapToFrontendVehicle(response.data.data);
+  }
 
-    const updatedVehicle: Vehicle = {
-      ...userVehicles[index],
-      vehicleNumber: data.vehicleNumber.toUpperCase(),
-      vehicleType: data.vehicleType,
-      vehicleBrand: data.vehicleBrand,
-      vehicleModel: data.vehicleModel,
-      vehicleColor: data.vehicleColor,
-    };
-
-    userVehicles[index] = updatedVehicle;
-    db[userId] = userVehicles;
-    saveVehiclesDb(db);
-
-    return updatedVehicle;
-  },
-
+  /**
+   * Delete a vehicle by ID
+   */
   async deleteVehicle(vehicleId: string): Promise<void> {
-    await simulateLatency();
+    await apiClient.delete<ApiResponse<void>>(`/vehicles/${vehicleId}`);
+  }
 
-    const userId = getCurrentUserId();
-    if (!userId) {
-      const error: ApiError = {
-        message: "User not authenticated.",
-        code: "UNAUTHORIZED",
-        status: 401,
-      };
-      throw error;
-    }
+}
 
-    const db = getVehiclesDb();
-    const userVehicles = db[userId] || [];
-
-    const index = userVehicles.findIndex((v) => v.id === vehicleId);
-    if (index === -1) {
-      const error: ApiError = {
-        message: "Vehicle not found.",
-        code: "NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    const wasPrimary = userVehicles[index].isPrimary;
-    userVehicles.splice(index, 1);
-
-    // If deleted vehicle was primary, set the first remaining vehicle as primary
-    if (wasPrimary && userVehicles.length > 0) {
-      userVehicles[0].isPrimary = true;
-    }
-
-    db[userId] = userVehicles;
-    saveVehiclesDb(db);
-  },
-
-  async setPrimaryVehicle(vehicleId: string): Promise<Vehicle[]> {
-    await simulateLatency();
-
-    const userId = getCurrentUserId();
-    if (!userId) {
-      const error: ApiError = {
-        message: "User not authenticated.",
-        code: "UNAUTHORIZED",
-        status: 401,
-      };
-      throw error;
-    }
-
-    const db = getVehiclesDb();
-    const userVehicles = db[userId] || [];
-
-    const targetIndex = userVehicles.findIndex((v) => v.id === vehicleId);
-    if (targetIndex === -1) {
-      const error: ApiError = {
-        message: "Vehicle not found.",
-        code: "NOT_FOUND",
-        status: 404,
-      };
-      throw error;
-    }
-
-    // Set all vehicles to non-primary, then set the target as primary
-    userVehicles.forEach((v) => (v.isPrimary = false));
-    userVehicles[targetIndex].isPrimary = true;
-
-    db[userId] = userVehicles;
-    saveVehiclesDb(db);
-
-    return userVehicles;
-  },
-};
+export const vehicleService = new VehicleService();

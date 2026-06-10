@@ -1,172 +1,186 @@
-import type { LoginCredentials, RegisterData, AuthResponse, User, ApiError } from "@/types";
-import { storage } from "@/utils";
+import apiClient from './api';
+import type {
+  User,
+  LoginCredentials,
+  RegisterData,
+  AuthResponse,
+} from '../types';
+import { storage } from '../utils';
+import { AxiosError } from 'axios';
 
-// Simulate network delay
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+/* ------------------------------------------------------------------ */
+/*  Backend DTO shapes                                                 */
+/* ------------------------------------------------------------------ */
 
-const simulateLatency = (): Promise<void> => delay(300 + Math.random() * 500);
+/** Shape of the ApiResponse wrapper from the backend */
+interface ApiResponseWrapper<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  errors?: unknown;
+  timestamp?: string;
+}
 
-// Mock user database stored in localStorage
-const USERS_DB_KEY = "parking_mock_users_db";
+/** Shape of the data field from POST /api/auth/register and POST /api/auth/login */
+interface BackendAuthResponse {
+  accessToken: string;
+  tokenType: string;
+  user: BackendUserResponse;
+}
 
-const getMockUsersDb = (): Record<string, { user: User; passwordHash: string }> => {
-  try {
-    const data = localStorage.getItem(USERS_DB_KEY);
-    return data ? JSON.parse(data) : {};
-  } catch {
-    return {};
+/** Shape of the response from GET /api/auth/me */
+interface BackendUserResponse {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+/** Shape of the error response from the backend GlobalExceptionHandler */
+interface BackendErrorResponse {
+  status: number;
+  message: string;
+  data: unknown;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Maps a backend UserResponse to the frontend User type.
+ * - Converts `id` from number to string
+ * - Provides defaults for fields not returned by the backend (phone, avatar, timestamps)
+ */
+function mapUserResponse(data: BackendUserResponse): User {
+  return {
+    id: String(data.id),
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: undefined,
+    avatar: undefined,
+    role: data.role ?? 'USER',
+    isVerified: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Extracts a human-readable error message from an Axios error response.
+ * Falls back to the provided default message if extraction fails.
+ */
+function extractErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof AxiosError && error.response?.data) {
+    const data = error.response.data;
+    // Backend may return JSON { status, message, data } or plain text
+    if (typeof data === 'string') {
+      return data;
+    }
+    if (typeof data === 'object' && data !== null && 'message' in data) {
+      return (data as BackendErrorResponse).message;
+    }
   }
-};
-
-const saveMockUsersDb = (db: Record<string, { user: User; passwordHash: string }>): void => {
-  localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
-};
-
-// Simple hash for mock purposes (not for production)
-const simpleHash = (str: string): string => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
+  if (error instanceof Error) {
+    return error.message;
   }
-  return `mock_hash_${Math.abs(hash)}`;
-};
+  return fallback;
+}
 
-const generateToken = (userId: string): string => {
-  return `mock_token_${userId}_${Date.now()}`;
-};
-
-const generateId = (): string => {
-  return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// Seed a default test user if none exist
-const seedDefaultUser = (): void => {
-  const db = getMockUsersDb();
-  const testEmail = "test@example.com";
-  
-  if (!db[testEmail]) {
-    const now = new Date().toISOString();
-    const testUser: User = {
-      id: "user_test_default",
-      email: testEmail,
-      firstName: "John",
-      lastName: "Doe",
-      phone: "+1234567890",
-      createdAt: now,
-      updatedAt: now,
-    };
-    db[testEmail] = { user: testUser, passwordHash: simpleHash("Password1") };
-    saveMockUsersDb(db);
-  }
-};
-
-// Initialize with seed data
-seedDefaultUser();
+/* ------------------------------------------------------------------ */
+/*  Auth Service — real Spring Boot API integration                    */
+/* ------------------------------------------------------------------ */
 
 export const authService = {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    await simulateLatency();
-
-    const db = getMockUsersDb();
-    const entry = db[credentials.email];
-
-    if (!entry) {
-      const error: ApiError = {
-        message: "Invalid email or password.",
-        code: "INVALID_CREDENTIALS",
-        status: 401,
-      };
-      throw error;
-    }
-
-    if (entry.passwordHash !== simpleHash(credentials.password)) {
-      const error: ApiError = {
-        message: "Invalid email or password.",
-        code: "INVALID_CREDENTIALS",
-        status: 401,
-      };
-      throw error;
-    }
-
-    const token = generateToken(entry.user.id);
-    const response: AuthResponse = {
-      user: entry.user,
-      token,
-    };
-
-    // Persist session
-    storage.setToken(token);
-    storage.setUser(entry.user);
-
-    return response;
-  },
-
+  /**
+   * Register a new user.
+   * POST /api/auth/register
+   */
   async register(data: RegisterData): Promise<AuthResponse> {
-    await simulateLatency();
+    try {
+      const response = await apiClient.post<ApiResponseWrapper<BackendAuthResponse>>(
+        '/auth/register',
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          role: 'USER',
+        }
+      );
 
-    const db = getMockUsersDb();
+      const authResponse = response.data.data;
+      const user = mapUserResponse(authResponse.user);
 
-    // Check if email already exists
-    if (db[data.email]) {
-      const error: ApiError = {
-        message: "An account with this email already exists.",
-        code: "EMAIL_EXISTS",
-        status: 409,
-      };
-      throw error;
+      // Persist token and user for checkAuth on page refresh
+      storage.setToken(authResponse.accessToken);
+      storage.setUser(user);
+
+      return { user, token: authResponse.accessToken };
+    } catch (error) {
+      throw new Error(
+        extractErrorMessage(error, 'Registration failed. Please try again.')
+      );
     }
-
-    // Check password confirmation
-    if (data.password !== data.confirmPassword) {
-      const error: ApiError = {
-        message: "Passwords do not match.",
-        code: "PASSWORD_MISMATCH",
-        status: 400,
-      };
-      throw error;
-    }
-
-    const now = new Date().toISOString();
-    const newUser: User = {
-      id: generateId(),
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    // Save to mock DB
-    db[data.email] = { user: newUser, passwordHash: simpleHash(data.password) };
-    saveMockUsersDb(db);
-
-    const token = generateToken(newUser.id);
-
-    // Persist session
-    storage.setToken(token);
-    storage.setUser(newUser);
-
-    return {
-      user: newUser,
-      token,
-    };
   },
 
-  async logout(): Promise<void> {
-    await delay(200);
-    storage.clearAll();
+  /**
+   * Authenticate an existing user.
+   * POST /api/auth/login
+   */
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<ApiResponseWrapper<BackendAuthResponse>>(
+        '/auth/login',
+        {
+          email: credentials.email,
+          password: credentials.password,
+        }
+      );
+
+      const authResponse = response.data.data;
+      const user = mapUserResponse(authResponse.user);
+
+      // Persist token and user for checkAuth on page refresh
+      storage.setToken(authResponse.accessToken);
+      storage.setUser(user);
+
+      return { user, token: authResponse.accessToken };
+    } catch (error) {
+      throw new Error(
+        extractErrorMessage(
+          error,
+          'Login failed. Please check your credentials.'
+        )
+      );
+    }
   },
 
+  /**
+   * Fetch the currently authenticated user's profile from the backend.
+   * GET /api/auth/me  (requires Bearer token)
+   * Returns null if the request fails (token expired, network error, etc.)
+   */
   async getCurrentUser(): Promise<User | null> {
-    await delay(100);
+    try {
+      const response = await apiClient.get<ApiResponseWrapper<BackendUserResponse>>('/auth/me');
+      const user = mapUserResponse(response.data.data);
 
-    const token = storage.getToken();
-    if (!token) return null;
+      // Update cached user data
+      storage.setUser(user);
 
-    const user = storage.getUser<User>();
-    return user;
+      return user;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Clear local auth state (token + cached user).
+   */
+  async logout(): Promise<void> {
+    storage.clearAll();
   },
 };

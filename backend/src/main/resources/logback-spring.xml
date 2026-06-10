@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- JSON structured logging for production -->
+    <springProfile name="production">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>correlationId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+                <includeMdcKeyName>requestMethod</includeMdcKeyName>
+                <includeMdcKeyName>requestUri</includeMdcKeyName>
+                <customFields>{"service":"cityparking-backend","version":"1.0.0"}</customFields>
+                <timeZone>UTC</timeZone>
+            </encoder>
+        </appender>
+
+        <!-- File appender with rotation -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/app/logs/cityparking.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>/app/logs/cityparking.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>50MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>correlationId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+                <customFields>{"service":"cityparking-backend","version":"1.0.0"}</customFields>
+                <timeZone>UTC</timeZone>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+
+        <!-- Reduce noise from frameworks -->
+        <logger name="org.springframework.web" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
+        <logger name="org.flywaydb" level="INFO"/>
+    </springProfile>
+
+    <!-- Human-readable console for development -->
+    <springProfile name="default,dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <logger name="com.cityparking" level="DEBUG"/>
+        <logger name="org.springframework.web" level="INFO"/>
+    </springProfile>
+
+    <!-- Test profile - minimal logging -->
+    <springProfile name="test">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.cityparking" level="INFO"/>
+    </springProfile>
+</configuration>

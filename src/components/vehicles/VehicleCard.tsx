@@ -11,7 +11,7 @@ interface VehicleCardProps {
 const vehicleTypeConfig = {
   car: {
     label: "Car",
-    color: "bg-blue-50 text-blue-600 border-blue-100",
+    color: "bg-blue-900/30 text-blue-400 border-blue-100",
     icon: "🚗",
   },
   motorcycle: {
@@ -21,12 +21,12 @@ const vehicleTypeConfig = {
   },
   bus: {
     label: "Bus",
-    color: "bg-amber-50 text-amber-600 border-amber-100",
+    color: "bg-amber-900/30 text-amber-400 border-amber-100",
     icon: "🚌",
   },
   van: {
     label: "Van",
-    color: "bg-purple-50 text-purple-600 border-purple-100",
+    color: "bg-purple-900/30 text-purple-400 border-purple-100",
     icon: "🚐",
   },
 };
@@ -50,7 +50,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl bg-white border transition-all duration-300 hover:-translate-y-1 ${
+      className={`group relative overflow-hidden rounded-2xl bg-zinc-900/80 backdrop-blur-md border transition-all duration-300 hover:-translate-y-1 ${
         vehicle.isPrimary
           ? "border-city-blue-200 shadow-md ring-2 ring-city-blue-500/10"
           : "border-gray-100 shadow-card hover:shadow-card-hover"
@@ -73,13 +73,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${
                 vehicle.isPrimary
                   ? "bg-city-blue-50"
-                  : "bg-gray-50"
+                  : "bg-zinc-800/50"
               } transition-colors duration-200`}
             >
               {typeConfig.icon}
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 tracking-wide">
+              <h3 className="text-lg font-bold text-zinc-100 tracking-wide">
                 {vehicle.vehicleNumber}
               </h3>
               <span
@@ -97,7 +97,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
               Brand
             </p>
-            <p className="text-sm font-semibold text-gray-700 mt-0.5">
+            <p className="text-sm font-semibold text-zinc-300 mt-0.5">
               {vehicle.vehicleBrand}
             </p>
           </div>
@@ -105,7 +105,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
               Model
             </p>
-            <p className="text-sm font-semibold text-gray-700 mt-0.5">
+            <p className="text-sm font-semibold text-zinc-300 mt-0.5">
               {vehicle.vehicleModel}
             </p>
           </div>
@@ -115,12 +115,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             </p>
             <div className="flex items-center gap-2 mt-0.5">
               <span
-                className="inline-block h-3.5 w-3.5 rounded-full border border-gray-200"
+                className="inline-block h-3.5 w-3.5 rounded-full border border-white/10"
                 style={{
                   backgroundColor: vehicle.vehicleColor.toLowerCase(),
                 }}
               />
-              <p className="text-sm font-semibold text-gray-700">
+              <p className="text-sm font-semibold text-zinc-300">
                 {vehicle.vehicleColor}
               </p>
             </div>
@@ -129,7 +129,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
               Added
             </p>
-            <p className="text-sm font-semibold text-gray-700 mt-0.5">
+            <p className="text-sm font-semibold text-zinc-300 mt-0.5">
               {new Date(vehicle.createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -143,7 +143,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
           <button
             onClick={() => navigate(`/vehicles/${vehicle.id}/edit`)}
-            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium text-zinc-400 bg-zinc-800/50 hover:bg-zinc-800 transition-colors duration-200"
           >
             <svg
               className="h-4 w-4"
@@ -167,7 +167,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
               vehicle.isPrimary
                 ? "text-city-blue-500 bg-city-blue-50 cursor-default"
-                : "text-gray-600 bg-gray-50 hover:bg-city-blue-50 hover:text-city-blue-600"
+                : "text-zinc-400 bg-zinc-800/50 hover:bg-city-blue-50 hover:text-city-blue-600"
             } ${isAnimating ? "scale-95" : ""}`}
           >
             <svg
@@ -188,7 +188,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 
           <button
             onClick={() => onDelete(vehicle)}
-            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors duration-200 ml-auto"
+            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium text-red-400 bg-red-900/30 hover:bg-red-100 transition-colors duration-200 ml-auto"
           >
             <svg
               className="h-4 w-4"

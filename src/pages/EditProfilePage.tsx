@@ -79,8 +79,8 @@ const EditProfilePage: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Edit Profile</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-zinc-100">Edit Profile</h1>
+        <p className="mt-1 text-sm text-zinc-400">
           Update your personal information
         </p>
       </div>
@@ -98,7 +98,7 @@ const EditProfilePage: React.FC = () => {
         )}
 
         {submitSuccess && (
-          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-900/30 p-4">
             <p className="text-sm text-green-800">
               Profile updated successfully! Redirecting...
             </p>
@@ -152,8 +152,8 @@ const EditProfilePage: React.FC = () => {
 
           {profile && (
             <div className="mb-4">
-              <p className="text-sm font-medium text-gray-500">Email</p>
-              <p className="mt-1 text-sm text-gray-900">
+              <p className="text-sm font-medium text-zinc-500">Email</p>
+              <p className="mt-1 text-sm text-zinc-100">
                 {profile.email}
               </p>
               <p className="mt-1 text-xs text-gray-400">

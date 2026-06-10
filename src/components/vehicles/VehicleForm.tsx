@@ -96,7 +96,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Vehicle Type */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <label className="block text-sm font-semibold text-zinc-300 mb-3">
           Vehicle Type <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -110,7 +110,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
                 formData.vehicleType === type.value
                   ? "border-city-blue-500 bg-city-blue-50 shadow-sm"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                  : "border-white/10 bg-zinc-900/80 backdrop-blur-md hover:border-white/20 hover:bg-zinc-800/50"
               }`}
             >
               <span className="text-2xl">{type.icon}</span>
@@ -118,7 +118,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                 className={`text-sm font-medium ${
                   formData.vehicleType === type.value
                     ? "text-city-blue-600"
-                    : "text-gray-600"
+                    : "text-zinc-400"
                 }`}
               >
                 {type.label}
@@ -132,7 +132,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       <div>
         <label
           htmlFor="vehicleNumber"
-          className="block text-sm font-semibold text-gray-700 mb-1.5"
+          className="block text-sm font-semibold text-zinc-300 mb-1.5"
         >
           Vehicle Number <span className="text-red-500">*</span>
         </label>
@@ -144,8 +144,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
           onChange={handleChange}
           placeholder="e.g., ABC 1234"
           className={`w-full rounded-xl border ${
-            errors.vehicleNumber ? "border-red-300" : "border-gray-200"
-          } bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
+            errors.vehicleNumber ? "border-red-300" : "border-white/10"
+          } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
         />
         {errors.vehicleNumber && (
           <p className="mt-1.5 text-xs text-red-500 font-medium">
@@ -158,7 +158,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       <div>
         <label
           htmlFor="vehicleBrand"
-          className="block text-sm font-semibold text-gray-700 mb-1.5"
+          className="block text-sm font-semibold text-zinc-300 mb-1.5"
         >
           Brand <span className="text-red-500">*</span>
         </label>
@@ -170,8 +170,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
           onChange={handleChange}
           placeholder="e.g., Toyota, Honda, BMW"
           className={`w-full rounded-xl border ${
-            errors.vehicleBrand ? "border-red-300" : "border-gray-200"
-          } bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
+            errors.vehicleBrand ? "border-red-300" : "border-white/10"
+          } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
         />
         {errors.vehicleBrand && (
           <p className="mt-1.5 text-xs text-red-500 font-medium">
@@ -184,7 +184,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       <div>
         <label
           htmlFor="vehicleModel"
-          className="block text-sm font-semibold text-gray-700 mb-1.5"
+          className="block text-sm font-semibold text-zinc-300 mb-1.5"
         >
           Model <span className="text-red-500">*</span>
         </label>
@@ -196,8 +196,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
           onChange={handleChange}
           placeholder="e.g., Camry, Civic, X5"
           className={`w-full rounded-xl border ${
-            errors.vehicleModel ? "border-red-300" : "border-gray-200"
-          } bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
+            errors.vehicleModel ? "border-red-300" : "border-white/10"
+          } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
         />
         {errors.vehicleModel && (
           <p className="mt-1.5 text-xs text-red-500 font-medium">
@@ -210,7 +210,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       <div>
         <label
           htmlFor="vehicleColor"
-          className="block text-sm font-semibold text-gray-700 mb-1.5"
+          className="block text-sm font-semibold text-zinc-300 mb-1.5"
         >
           Color <span className="text-red-500">*</span>
         </label>
@@ -222,8 +222,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
           onChange={handleChange}
           placeholder="e.g., White, Black, Silver"
           className={`w-full rounded-xl border ${
-            errors.vehicleColor ? "border-red-300" : "border-gray-200"
-          } bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
+            errors.vehicleColor ? "border-red-300" : "border-white/10"
+          } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-gray-400 transition-all duration-200 focus:border-city-blue-500 focus:outline-none focus:ring-2 focus:ring-city-blue-500/20`}
         />
         {errors.vehicleColor && (
           <p className="mt-1.5 text-xs text-red-500 font-medium">
