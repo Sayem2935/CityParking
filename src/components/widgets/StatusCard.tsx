@@ -18,12 +18,12 @@ const statusColors = {
 
 const StatusCard: React.FC<StatusCardProps> = ({ label, value, icon, status = 'neutral', subtitle }) => {
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 p-6 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative overflow-hidden rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 p-6 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-zinc-500 mb-1">{label}</p>
           <p className="text-2xl font-bold text-zinc-100">{value}</p>
-          {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-zinc-500 mt-1">{subtitle}</p>}
         </div>
         <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${statusColors[status]} text-white shadow-lg`}>
           {icon}

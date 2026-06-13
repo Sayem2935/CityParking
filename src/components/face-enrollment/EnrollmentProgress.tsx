@@ -13,10 +13,10 @@ const EnrollmentProgress: React.FC = () => {
     <div className="space-y-4">
       {/* Step indicator */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-city-blue-600 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
           Step {currentStepIndex + 1} of {ENROLLMENT_STEPS.length}
         </span>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-zinc-500">
           {Math.round(progress)}% complete
         </span>
       </div>
@@ -28,9 +28,9 @@ const EnrollmentProgress: React.FC = () => {
             key={step.id}
             className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
               index < currentStepIndex
-                ? "bg-city-blue-500"
+                ? "bg-blue-500"
                 : index === currentStepIndex
-                  ? "bg-gradient-to-r from-city-blue-500 to-city-cyan-500"
+                  ? "bg-gradient-to-r from-blue-500 to-cyan-500"
                   : "bg-zinc-700"
             }`}
           />
@@ -38,11 +38,11 @@ const EnrollmentProgress: React.FC = () => {
       </div>
 
       {/* Current step card */}
-      <div className="rounded-xl bg-gradient-to-r from-city-blue-50 to-city-cyan-50 border border-city-blue-100 p-4">
+      <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-900/80 backdrop-blur-md shadow-sm">
             <svg
-              className="h-6 w-6 text-city-blue-600"
+              className="h-6 w-6 text-blue-600"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -64,7 +64,7 @@ const EnrollmentProgress: React.FC = () => {
             </p>
           </div>
           <div className="text-right">
-            <span className="text-xs font-mono text-gray-400">
+            <span className="text-xs font-mono text-zinc-500">
               {currentStep.duration}s
             </span>
           </div>
@@ -78,7 +78,7 @@ const EnrollmentProgress: React.FC = () => {
             key={step.id}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 ${
               index === currentStepIndex
-                ? "bg-city-blue-50"
+                ? "bg-blue-500/10"
                 : index < currentStepIndex
                   ? "opacity-50"
                   : "opacity-40"
@@ -87,10 +87,10 @@ const EnrollmentProgress: React.FC = () => {
             <div
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
                 index < currentStepIndex
-                  ? "bg-city-blue-500 text-white"
+                  ? "bg-blue-500 text-white"
                   : index === currentStepIndex
-                    ? "bg-city-blue-500 text-white ring-4 ring-city-blue-100"
-                    : "bg-zinc-700 text-gray-400"
+                    ? "bg-blue-500 text-white ring-4 ring-blue-500/20"
+                    : "bg-zinc-700 text-zinc-500"
               }`}
             >
               {index < currentStepIndex ? (
@@ -104,10 +104,10 @@ const EnrollmentProgress: React.FC = () => {
             <span
               className={`text-xs font-medium ${
                 index === currentStepIndex
-                  ? "text-city-blue-700"
+                  ? "text-blue-400"
                   : index < currentStepIndex
-                    ? "text-gray-400 line-through"
-                    : "text-gray-400"
+                    ? "text-zinc-500 line-through"
+                    : "text-zinc-500"
               }`}
             >
               {step.label}

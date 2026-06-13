@@ -98,8 +98,8 @@ const EditProfilePage: React.FC = () => {
         )}
 
         {submitSuccess && (
-          <div className="mb-6 rounded-lg border border-green-200 bg-green-900/30 p-4">
-            <p className="text-sm text-green-800">
+          <div className="mb-6 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
+            <p className="text-sm text-emerald-400">
               Profile updated successfully! Redirecting...
             </p>
           </div>
@@ -156,7 +156,7 @@ const EditProfilePage: React.FC = () => {
               <p className="mt-1 text-sm text-zinc-100">
                 {profile.email}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-zinc-500">
                 Email cannot be changed
               </p>
             </div>

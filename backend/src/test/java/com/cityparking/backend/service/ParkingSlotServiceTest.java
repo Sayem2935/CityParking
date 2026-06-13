@@ -49,19 +49,17 @@ class ParkingSlotServiceTest {
     void setUp() {
         sampleSlot = new ParkingSlot();
         sampleSlot.setId(1L);
-        sampleSlot.setSlotCode("A-01");
+        sampleSlot.setSlotCode("AB4-01");
         sampleSlot.setStatus(SlotStatus.FREE);
-        sampleSlot.setFloorNumber(1);
-        sampleSlot.setZone("Zone A");
+        sampleSlot.setZone("AB4 Parking");
         sampleSlot.setCreatedAt(LocalDateTime.now());
         sampleSlot.setUpdatedAt(LocalDateTime.now());
 
         ParkingSlot slot2 = new ParkingSlot();
         slot2.setId(2L);
-        slot2.setSlotCode("A-02");
+        slot2.setSlotCode("AB4-02");
         slot2.setStatus(SlotStatus.OCCUPIED);
-        slot2.setFloorNumber(1);
-        slot2.setZone("Zone A");
+        slot2.setZone("AB4 Parking");
         slot2.setCreatedAt(LocalDateTime.now());
         slot2.setUpdatedAt(LocalDateTime.now());
 
@@ -78,7 +76,7 @@ class ParkingSlotServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getSlotCode()).isEqualTo("A-01");
+        assertThat(result.get(0).getSlotCode()).isEqualTo("AB4-01");
         verify(parkingSlotRepository).findAll();
     }
 
@@ -86,12 +84,12 @@ class ParkingSlotServiceTest {
     @Test
     @DisplayName("Should return slots filtered by zone")
     void shouldReturnSlotsByZone() {
-        when(parkingSlotRepository.findByZone("Zone A")).thenReturn(sampleSlots);
+        when(parkingSlotRepository.findByZone("AB4 Parking")).thenReturn(sampleSlots);
 
-        List<ParkingSlotResponse> result = parkingSlotService.getSlotsByZone("Zone A");
+        List<ParkingSlotResponse> result = parkingSlotService.getSlotsByZone("AB4 Parking");
 
         assertThat(result).hasSize(2);
-        verify(parkingSlotRepository).findByZone("Zone A");
+        verify(parkingSlotRepository).findByZone("AB4 Parking");
     }
 
     // === TEST 3: Get Slots by Status ===
@@ -171,7 +169,7 @@ class ParkingSlotServiceTest {
     @DisplayName("Should process AI detection and update slots")
     void shouldProcessAiDetection() {
         ScanResultResponse.SlotDetection detection = new ScanResultResponse.SlotDetection();
-        detection.setSlotCode("A-01");
+        detection.setSlotCode("AB4-01");
         detection.setOccupied(true);
 
         ScanResultResponse aiResult = ScanResultResponse.builder()
@@ -182,7 +180,7 @@ class ParkingSlotServiceTest {
                 .detections(List.of(detection))
                 .build();
 
-        when(parkingSlotRepository.findBySlotCode("A-01")).thenReturn(Optional.of(sampleSlot));
+        when(parkingSlotRepository.findBySlotCode("AB4-01")).thenReturn(Optional.of(sampleSlot));
         when(parkingSlotRepository.save(any(ParkingSlot.class))).thenReturn(sampleSlot);
         when(parkingScanLogRepository.save(any())).thenReturn(null);
 
@@ -193,18 +191,7 @@ class ParkingSlotServiceTest {
         verify(parkingSlotRepository).save(any(ParkingSlot.class));
     }
 
-    // === TEST 9: Get Slots by Floor ===
-    @Test
-    @DisplayName("Should return slots filtered by floor number")
-    void shouldReturnSlotsByFloor() {
-        when(parkingSlotRepository.findByFloorNumber(1)).thenReturn(sampleSlots);
-
-        List<ParkingSlotResponse> result = parkingSlotService.getSlotsByFloor(1);
-
-        assertThat(result).hasSize(2);
-    }
-
-    // === TEST 10: Empty Slots List ===
+    // === TEST 9: Empty Slots List ===
     @Test
     @DisplayName("Should return empty list when no slots exist")
     void shouldReturnEmptyListWhenNoSlots() {
@@ -226,10 +213,10 @@ class ParkingSlotServiceTest {
         when(parkingSlotRepository.countByStatus(SlotStatus.MAINTENANCE)).thenReturn(0L);
 
         List<Object[]> zoneData = new ArrayList<>();
-        zoneData.add(new Object[]{"Zone A", "FREE", 3L});
-        zoneData.add(new Object[]{"Zone A", "OCCUPIED", 2L});
-        zoneData.add(new Object[]{"Zone B", "FREE", 3L});
-        zoneData.add(new Object[]{"Zone B", "OCCUPIED", 2L});
+        zoneData.add(new Object[]{"AB4 Parking", "FREE", 3L});
+        zoneData.add(new Object[]{"AB4 Parking", "OCCUPIED", 2L});
+        zoneData.add(new Object[]{"Engineering Parking", "FREE", 3L});
+        zoneData.add(new Object[]{"Engineering Parking", "OCCUPIED", 2L});
         when(parkingSlotRepository.countSlotsByZoneAndStatus()).thenReturn(zoneData);
 
         AvailabilityResponse result = parkingSlotService.getAvailability();
@@ -237,7 +224,7 @@ class ParkingSlotServiceTest {
         assertThat(result.getZones()).isNotEmpty();
     }
 
-    // === TEST 12: Process AI Detection with Empty Detections ===
+    // === TEST 11: Process AI Detection with Empty Detections ===
     @Test
     @DisplayName("Should return result unchanged when no detections")
     void shouldReturnUnchangedWhenNoDetections() {

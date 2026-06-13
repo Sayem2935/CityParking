@@ -15,7 +15,7 @@ const CameraPermission: React.FC<CameraPermissionProps> = ({
     <div className="flex flex-col items-center justify-center py-16 px-6">
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-zinc-800">
         <svg
-          className="h-10 w-10 text-gray-400"
+          className="h-10 w-10 text-zinc-500"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
@@ -45,7 +45,7 @@ const CameraPermission: React.FC<CameraPermissionProps> = ({
           </p>
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-city-blue-500 to-city-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <svg
               className="h-5 w-5"

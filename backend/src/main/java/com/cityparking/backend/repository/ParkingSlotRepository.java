@@ -20,17 +20,13 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
 
     List<ParkingSlot> findByZone(String zone);
 
-    List<ParkingSlot> findByFloorNumber(Integer floorNumber);
-
-    List<ParkingSlot> findByFloorNumberAndZone(Integer floorNumber, String zone);
 
     long countByStatus(SlotStatus status);
 
-    List<ParkingSlot> findByStatusAndFloorNumber(SlotStatus status, Integer floorNumber);
 
     List<ParkingSlot> findByStatusAndZone(SlotStatus status, String zone);
 
-    List<ParkingSlot> findByStatusOrderByFloorNumberAscZoneAsc(SlotStatus status);
+    List<ParkingSlot> findByStatusOrderByZoneAscSlotCodeAsc(SlotStatus status);
 
     @Modifying
     @Query("UPDATE ParkingSlot s SET s.status = :status, s.updatedAt = CURRENT_TIMESTAMP WHERE s.slotCode = :slotCode")
@@ -39,14 +35,9 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     @Query("SELECT s.zone, s.status, COUNT(s) FROM ParkingSlot s GROUP BY s.zone, s.status ORDER BY s.zone, s.status")
     List<Object[]> countSlotsByZoneAndStatus();
 
-    @Query("SELECT s.floorNumber, s.status, COUNT(s) FROM ParkingSlot s GROUP BY s.floorNumber, s.status ORDER BY s.floorNumber, s.status")
-    List<Object[]> countSlotsByFloorAndStatus();
-
-    @Query("SELECT s FROM ParkingSlot s WHERE s.status = 'FREE' ORDER BY s.floorNumber ASC, s.zone ASC, s.slotCode ASC")
+    @Query("SELECT s FROM ParkingSlot s WHERE s.status = 'FREE' ORDER BY s.zone ASC, s.slotCode ASC")
     List<ParkingSlot> findAllFreeSlotsOrdered();
 
-    @Query("SELECT s FROM ParkingSlot s WHERE s.status = 'FREE' AND s.floorNumber = :floor ORDER BY s.zone ASC, s.slotCode ASC")
-    List<ParkingSlot> findFreeSlotsByFloor(@Param("floor") Integer floor);
 
     @Query("SELECT COUNT(s) FROM ParkingSlot s WHERE s.status = 'OCCUPIED'")
     long countOccupied();

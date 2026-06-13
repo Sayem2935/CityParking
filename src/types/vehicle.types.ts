@@ -1,4 +1,4 @@
-export type VehicleType = "car" | "motorcycle" | "bus" | "van";
+export type VehicleType = "car" | "motorcycle";
 
 export interface Vehicle {
   id: string;

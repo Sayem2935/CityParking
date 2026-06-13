@@ -19,7 +19,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ variant = 'card', count
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`animate-pulse bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-shimmer ${variants[variant]} ${className}`}
+          className={`skeleton ${variants[variant]} ${className}`}
         />
       ))}
     </>

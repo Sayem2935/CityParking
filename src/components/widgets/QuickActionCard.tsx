@@ -11,17 +11,17 @@ interface QuickActionCardProps {
 const colorMap = {
   blue: {
     bg: 'bg-blue-900/30 hover:bg-blue-100',
-    icon: 'from-city-blue-500 to-city-blue-600',
+    icon: 'from-blue-500 to-blue-600',
     border: 'border-blue-100 hover:border-blue-200',
   },
   emerald: {
     bg: 'bg-emerald-50 hover:bg-emerald-100',
-    icon: 'from-city-emerald-500 to-city-emerald-600',
+    icon: 'from-emerald-500 to-emerald-600',
     border: 'border-emerald-100 hover:border-emerald-200',
   },
   cyan: {
     bg: 'bg-cyan-50 hover:bg-cyan-100',
-    icon: 'from-city-cyan-500 to-city-cyan-600',
+    icon: 'from-cyan-500 to-cyan-600',
     border: 'border-cyan-100 hover:border-cyan-200',
   },
   purple: {

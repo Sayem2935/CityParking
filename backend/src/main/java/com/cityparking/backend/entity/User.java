@@ -54,6 +54,27 @@ public class User {
     @Column(length = 500)
     private String avatarUrl;
 
+    // University ID document extraction fields
+    @Size(max = 200, message = "Student name must not exceed 200 characters")
+    @Column(length = 200)
+    private String studentName;
+
+    @Size(max = 100, message = "Student ID must not exceed 100 characters")
+    @Column(length = 100)
+    private String studentId;
+
+    @Size(max = 200, message = "University name must not exceed 200 characters")
+    @Column(length = 200)
+    private String universityName;
+
+    @Size(max = 200, message = "Department must not exceed 200 characters")
+    @Column(length = 200)
+    private String department;
+
+    @Size(max = 50, message = "Session must not exceed 50 characters")
+    @Column(length = 50)
+    private String session;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean isActive = true;

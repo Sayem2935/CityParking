@@ -12,9 +12,9 @@ const fadeUp = {
 };
 
 const stats = [
-  { label: 'AI Models Active', value: '5', suffix: '' },
+  { label: 'AI Models Active', value: '4', suffix: '' },
   { label: 'Detection Accuracy', value: '98.2', suffix: '%' },
-  { label: 'Optimization Gain', value: '34', suffix: '%' },
+  { label: 'Vehicle Types', value: '2', suffix: '' },
   { label: 'Response Time', value: '<200', suffix: 'ms' },
 ];
 
@@ -43,9 +43,9 @@ const features = [
     ),
   },
   {
-    tag: 'Deep Learning',
-    title: 'LSTM Occupancy Prediction',
-    description: 'Long Short-Term Memory neural network forecasting parking demand 24 hours ahead with trend analysis and peak detection.',
+    tag: 'Heat Map',
+    title: 'Real-Time Occupancy Map',
+    description: 'Live heat map visualization showing parking slot occupancy across all zones, auto-updating on every vehicle entry and exit.',
     color: 'from-emerald-500 to-teal-500',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -54,24 +54,13 @@ const features = [
     ),
   },
   {
-    tag: 'Reinforcement Learning',
-    title: 'RL Smart Optimization',
-    description: 'Q-learning agent continuously optimizing parking slot assignments, reducing congestion and maximizing throughput in real-time.',
+    tag: 'Document AI',
+    title: 'University ID Extraction',
+    description: 'AI-powered document extraction from university ID cards using Gemini OCR, extracting student details and saving to user profiles.',
     color: 'from-amber-500 to-orange-500',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-      </svg>
-    ),
-  },
-  {
-    tag: 'Simulation',
-    title: 'Digital Twin',
-    description: 'Real-time digital replica of the entire parking facility enabling scenario simulation, predictive modeling, and operational planning.',
-    color: 'from-rose-500 to-pink-500',
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
       </svg>
     ),
   },
@@ -91,7 +80,7 @@ const features = [
 const architectureLayers = [
   { name: 'User Interface', tech: 'React + TypeScript + Tailwind', color: 'bg-blue-500/20 border-blue-500/40 text-blue-300' },
   { name: 'API Gateway', tech: 'Spring Boot + JWT Security', color: 'bg-violet-500/20 border-violet-500/40 text-violet-300' },
-  { name: 'AI Engine', tech: 'PyTorch + YOLO + LSTM + RL', color: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' },
+  { name: 'AI Engine', tech: 'PyTorch + YOLO + Gemini OCR', color: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' },
   { name: 'Data Layer', tech: 'PostgreSQL + Redis + File Storage', color: 'bg-amber-500/20 border-amber-500/40 text-amber-300' },
 ];
 
@@ -151,15 +140,15 @@ const LandingPage: React.FC = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
-          <a href="#architecture" className="text-sm text-gray-400 hover:text-white transition-colors">Architecture</a>
-          <a href="#technology" className="text-sm text-gray-400 hover:text-white transition-colors">Technology</a>
+          <a href="#features" className="text-sm text-zinc-500 hover:text-white transition-colors">Features</a>
+          <a href="#architecture" className="text-sm text-zinc-500 hover:text-white transition-colors">Architecture</a>
+          <a href="#technology" className="text-sm text-zinc-500 hover:text-white transition-colors">Technology</a>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/login')}
-            className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
           >
             Sign In
           </button>
@@ -195,7 +184,7 @@ const LandingPage: React.FC = () => {
           Intelligent Parking
           <br />
           <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-            Powered by 5 AI Models
+            Powered by AI
           </span>
         </motion.h1>
 
@@ -204,10 +193,10 @@ const LandingPage: React.FC = () => {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="mt-6 text-lg md:text-xl text-gray-400 text-center max-w-2xl leading-relaxed"
+          className="mt-6 text-lg md:text-xl text-zinc-500 text-center max-w-2xl leading-relaxed"
         >
-          Real-time vehicle detection, face recognition access, predictive occupancy forecasting,
-          reinforcement learning optimization, and digital twin simulation — all in one platform.
+          Real-time vehicle detection, face recognition access, occupancy heat map visualization,
+          and university ID extraction — all in one platform.
         </motion.p>
 
         <motion.div
@@ -245,7 +234,7 @@ const LandingPage: React.FC = () => {
                 {stat.value}
                 <span className="text-blue-400">{stat.suffix}</span>
               </div>
-              <div className="mt-1 text-sm text-gray-500">{stat.label}</div>
+              <div className="mt-1 text-sm text-zinc-500">{stat.label}</div>
             </div>
           ))}
         </motion.div>
@@ -282,7 +271,7 @@ const LandingPage: React.FC = () => {
                 className={`rounded-2xl border p-8 text-center ${item.color}`}
               >
                 <div className="text-4xl md:text-5xl font-bold text-white mb-3">{item.stat}</div>
-                <p className="text-gray-400 text-sm leading-relaxed">{item.label}</p>
+                <p className="text-zinc-500 text-sm leading-relaxed">{item.label}</p>
               </motion.div>
             ))}
           </div>
@@ -301,9 +290,9 @@ const LandingPage: React.FC = () => {
             className="text-center mb-16"
           >
             <span className="text-xs font-semibold tracking-widest uppercase text-blue-400 mb-4 block">AI Capabilities</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Five AI Models. One Platform.</h2>
-            <p className="mt-4 text-gray-400 max-w-xl mx-auto">
-              Each AI model operates independently and collaboratively to deliver intelligent parking management.
+            <h2 className="text-3xl md:text-4xl font-bold">AI-Powered Smart Parking. Simplified.</h2>
+            <p className="mt-4 text-zinc-500 max-w-xl mx-auto">
+              Computer vision, face recognition, heat map visualization, and document extraction — all in one platform.
             </p>
           </motion.div>
 
@@ -321,9 +310,9 @@ const LandingPage: React.FC = () => {
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 text-white shadow-lg`}>
                   {feature.icon}
                 </div>
-                <span className="text-[11px] font-semibold tracking-wider uppercase text-gray-500">{feature.tag}</span>
+                <span className="text-[11px] font-semibold tracking-wider uppercase text-zinc-500">{feature.tag}</span>
                 <h3 className="text-lg font-semibold text-white mt-1 mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{feature.description}</p>
+                <p className="text-sm text-zinc-500 leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -396,8 +385,8 @@ const LandingPage: React.FC = () => {
               { name: 'PyTorch', desc: 'AI Inference' },
               { name: 'PostgreSQL', desc: 'Database' },
               { name: 'YOLOv8', desc: 'Object Detection' },
-              { name: 'TensorFlow', desc: 'LSTM Prediction' },
-              { name: 'OpenAI Gym', desc: 'RL Training' },
+              { name: 'Gemini API', desc: 'Document OCR' },
+              { name: 'Recharts', desc: 'Data Visualization' },
               { name: 'Docker', desc: 'Deployment' },
             ].map((tech, i) => (
               <motion.div
@@ -410,7 +399,7 @@ const LandingPage: React.FC = () => {
                 className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-center hover:bg-white/[0.05] transition-all"
               >
                 <div className="font-semibold text-sm text-white">{tech.name}</div>
-                <div className="text-xs text-gray-500 mt-1">{tech.desc}</div>
+                <div className="text-xs text-zinc-500 mt-1">{tech.desc}</div>
               </motion.div>
             ))}
           </div>
@@ -428,8 +417,8 @@ const LandingPage: React.FC = () => {
           className="max-w-3xl mx-auto text-center rounded-3xl border border-white/[0.08] bg-gradient-to-b from-blue-500/10 to-violet-500/10 p-12 lg:p-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Experience the Future of Parking</h2>
-          <p className="text-gray-400 mb-8 max-w-lg mx-auto">
-            Access the full AI-powered dashboard with real-time monitoring, predictions, and intelligent optimization.
+          <p className="text-zinc-500 mb-8 max-w-lg mx-auto">
+            Access the full AI-powered dashboard with real-time monitoring, heat map visualization, and smart vehicle management.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
@@ -457,10 +446,10 @@ const LandingPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-gray-400">CityParking</span>
+            <span className="text-sm font-semibold text-zinc-500">CityParking</span>
           </div>
-          <p className="text-xs text-gray-600">
-            AI-Powered Smart Parking Management & Optimization Platform
+          <p className="text-xs text-zinc-600">
+            AI-Powered Smart Parking Management Platform
           </p>
         </div>
       </footer>

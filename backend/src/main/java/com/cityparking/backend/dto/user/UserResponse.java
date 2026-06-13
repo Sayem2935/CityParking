@@ -24,6 +24,11 @@ public class UserResponse {
     private String role;
     private Integer vehicleCount;
     private Boolean hasFaceEnrollment;
+    private String studentName;
+    private String studentId;
+    private String universityName;
+    private String department;
+    private String session;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -41,6 +46,11 @@ public class UserResponse {
                 .hasFaceEnrollment(user.getFaceEnrollments() != null &&
                         user.getFaceEnrollments().stream()
                                 .anyMatch(fe -> fe.getStatus() == com.cityparking.backend.entity.FaceEnrollment.EnrollmentStatus.ENROLLED))
+                .studentName(user.getStudentName())
+                .studentId(user.getStudentId())
+                .universityName(user.getUniversityName())
+                .department(user.getDepartment())
+                .session(user.getSession())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

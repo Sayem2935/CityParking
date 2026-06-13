@@ -150,7 +150,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ stream }) => {
               {remainingTime}s remaining
             </span>
             {duration < MIN_DURATION && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-zinc-500">
                 Min: {MIN_DURATION}s
               </p>
             )}
@@ -165,7 +165,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ stream }) => {
             className={`h-1.5 rounded-full transition-all duration-1000 ${
               isWarning
                 ? "bg-red-500"
-                : "bg-gradient-to-r from-city-blue-500 to-city-cyan-500"
+                : "bg-gradient-to-r from-blue-500 to-cyan-500"
             }`}
             style={{
               width: `${(duration / MAX_DURATION) * 100}%`,
@@ -194,7 +194,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ stream }) => {
           <button
             onClick={handleStopRecording}
             disabled={!canStop}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 px-8 py-3.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-zinc-700 to-zinc-800 px-8 py-3.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             title={
               !canStop
                 ? `Minimum recording time is ${MIN_DURATION} seconds`
@@ -215,7 +215,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ stream }) => {
 
       {/* Min duration hint */}
       {isRecording && !canStop && (
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-zinc-500">
           Record for at least {MIN_DURATION} seconds to enable stop
         </p>
       )}

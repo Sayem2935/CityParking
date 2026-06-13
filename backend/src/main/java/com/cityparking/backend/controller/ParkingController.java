@@ -35,16 +35,12 @@ public class ParkingController {
     @Operation(summary = "Get all parking slots", description = "Returns all parking slots with their current status")
     public ResponseEntity<List<ParkingSlotResponse>> getAllSlots(
             @RequestParam(required = false) String zone,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Integer floor) {
+            @RequestParam(required = false) String status) {
         if (zone != null) {
             return ResponseEntity.ok(parkingSlotService.getSlotsByZone(zone));
         }
         if (status != null) {
             return ResponseEntity.ok(parkingSlotService.getSlotsByStatus(SlotStatus.valueOf(status)));
-        }
-        if (floor != null) {
-            return ResponseEntity.ok(parkingSlotService.getSlotsByFloor(floor));
         }
         return ResponseEntity.ok(parkingSlotService.getAllSlots());
     }

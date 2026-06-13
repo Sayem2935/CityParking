@@ -1,201 +1,166 @@
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Navbar, ProtectedRoute } from "@/components";
+import { ProtectedRoute } from "@/components";
 import Sidebar from "@/components/Sidebar";
-import {
-  LoginPage,
-  RegisterPage,
-  DashboardPage,
-  ProfilePage,
-  EditProfilePage,
-  VehiclesPage,
-  AddVehiclePage,
-  EditVehiclePage,
-  FaceEnrollmentPage,
-  NotFoundPage,
-} from "@/pages";
-import LandingPage from "@/pages/LandingPage";
-import ParkingDashboardPage from "@/pages/ParkingDashboardPage";
-import ParkingPredictionDashboard from "@/pages/ParkingPredictionDashboard";
-import ParkingOptimizationDashboard from "@/pages/ParkingOptimizationDashboard";
-import ParkingDigitalTwinDashboard from "@/pages/ParkingDigitalTwinDashboard";
+import BottomNav from "@/components/BottomNav";
+import Navbar from "@/components/Navbar";
+import PageSkeleton from "@/components/PageSkeleton";
 import { useAuthStore } from "@/store";
 
-// Layout for authenticated pages with sidebar
-const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+// Lazy-loaded pages for code splitting
+const LandingPage = React.lazy(() => import("@/pages/LandingPage"));
+const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
+const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
+const DashboardPage = React.lazy(() => import("@/pages/DashboardPage"));
+const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
+const EditProfilePage = React.lazy(() => import("@/pages/EditProfilePage"));
+const VehiclesPage = React.lazy(() => import("@/pages/VehiclesPage"));
+const AddVehiclePage = React.lazy(() => import("@/pages/AddVehiclePage"));
+const EditVehiclePage = React.lazy(() => import("@/pages/EditVehiclePage"));
+const FaceEnrollmentPage = React.lazy(() => import("@/pages/FaceEnrollmentPage"));
+const UniversityIdPage = React.lazy(() => import("@/pages/UniversityIdPage"));
+const ParkingDashboardPage = React.lazy(() => import("@/pages/ParkingDashboardPage"));
+const NotFoundPage = React.lazy(() => import("@/pages/NotFoundPage"));
+
+// Loading fallback
+const PageFallback: React.FC = () => <PageSkeleton variant="dashboard" />;
+
+// App shell for authenticated pages
+const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="flex min-h-screen bg-[#09090b]">
+    {/* Desktop sidebar — hidden on mobile */}
     <Sidebar />
-    <div className="flex-1 lg:ml-[260px] transition-all duration-300">
+
+    {/* Main content area */}
+    <div className="flex-1 lg:ml-[260px] transition-all duration-300 flex flex-col min-h-screen">
       <Navbar />
-      <main className="p-4 lg:p-6">
+      <main className="flex-1 p-4 lg:p-6 pb-24 lg:pb-6">
         {children}
       </main>
     </div>
+
+    {/* Mobile bottom nav — hidden on desktop */}
+    <BottomNav />
   </div>
 );
 
 const App: React.FC = () => {
   const { isAuthenticated, checkAuth } = useAuthStore();
 
-  // Initialize auth state from storage on app load
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
   return (
     <Router>
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       <div className="min-h-screen bg-[#09090b]">
-        <Routes>
-          {/* Landing page - public */}
-          <Route
-            path="/"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />
-            }
-          />
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            {/* Landing page — public */}
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />
+              }
+            />
 
-          {/* Public routes - no sidebar */}
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
-            }
-          />
+            {/* Public routes — no shell */}
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
+              }
+            />
 
-          {/* Protected routes with sidebar layout */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <DashboardPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ProfilePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/edit"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <EditProfilePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Vehicle routes */}
-          <Route
-            path="/vehicles"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <VehiclesPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vehicles/add"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <AddVehiclePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vehicles/:id/edit"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <EditVehiclePage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Face Enrollment route */}
-          <Route
-            path="/face-enrollment"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <FaceEnrollmentPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Parking Dashboard route */}
-          <Route
-            path="/parking"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ParkingDashboardPage />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Parking Prediction Dashboard route */}
-          <Route
-            path="/parking/predictions"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ParkingPredictionDashboard />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Parking Optimization Dashboard route */}
-          <Route
-            path="/parking/optimization"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ParkingOptimizationDashboard />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Digital Twin Dashboard route */}
-          <Route
-            path="/parking/digital-twin"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <ParkingDigitalTwinDashboard />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
-
-
-          {/* 404 catch-all */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* Protected routes with app shell */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AppShell>
+                    <div id="main-content">
+                      <DashboardPage />
+                    </div>
+                  </AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <AppShell><ProfilePage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <AppShell><EditProfilePage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicles"
+              element={
+                <ProtectedRoute>
+                  <AppShell><VehiclesPage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicles/add"
+              element={
+                <ProtectedRoute>
+                  <AppShell><AddVehiclePage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicles/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <AppShell><EditVehiclePage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/face-enrollment"
+              element={
+                <ProtectedRoute>
+                  <AppShell><FaceEnrollmentPage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/university-id"
+              element={
+                <ProtectedRoute>
+                  <AppShell><UniversityIdPage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/parking"
+              element={
+                <ProtectedRoute>
+                  <AppShell><ParkingDashboardPage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </div>
     </Router>
   );

@@ -1,29 +1,6 @@
-export type {
-  User,
-  LoginCredentials,
-  RegisterData,
-  UpdateProfileData,
-  AuthResponse,
-  AuthState,
-} from "./auth.types";
-
-export type {
-  ApiResponse,
-  ApiError,
-  PaginatedResponse,
-} from "./api.types";
-
-export type {
-  Vehicle,
-  VehicleType,
-  AddVehicleData,
-  UpdateVehicleData,
-  VehicleState,
-} from "./vehicle.types";
-
-export type {
-  EnrollmentSession,
-  RecordingStatus,
-  UploadStatus,
-  FaceEnrollmentState,
-} from "./face-enrollment.types";
+export * from './api.types';
+export * from './auth.types';
+export * from './vehicle.types';
+export * from './face-enrollment.types';
+export * from './parking.types';
+export * from './document.types';

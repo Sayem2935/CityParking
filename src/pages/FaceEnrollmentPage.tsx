@@ -36,12 +36,12 @@ const FaceEnrollmentPage: React.FC = () => {
   const showPreview = isCompleted && currentSession?.videoUrl;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-city-blue-50/30">
+    <div className="min-h-screen bg-[#09090b]">
       {/* Header */}
-      <div className="bg-zinc-900/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
+      <div className="bg-[#09090b]/90 backdrop-blur-xl border-b border-zinc-800 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-city-blue-500 to-city-cyan-500 shadow-lg shadow-city-blue-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-400 shadow-lg shadow-blue-500/20">
               <svg
                 className="h-5 w-5 text-white"
                 fill="none"
@@ -77,13 +77,13 @@ const FaceEnrollmentPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {/* Instructions card */}
         {cameraPermission !== "granted" && (
-          <div className="mb-6 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-sm p-6">
+          <div className="mb-6 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-sm p-6">
             <h2 className="text-base font-bold text-zinc-100 mb-4">
               How it works
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-city-blue-50 text-city-blue-600 text-sm font-bold flex-shrink-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 text-sm font-bold flex-shrink-0">
                   1
                 </div>
                 <div>
@@ -96,7 +96,7 @@ const FaceEnrollmentPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-city-blue-50 text-city-blue-600 text-sm font-bold flex-shrink-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 text-sm font-bold flex-shrink-0">
                   2
                 </div>
                 <div>
@@ -109,7 +109,7 @@ const FaceEnrollmentPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-city-blue-50 text-city-blue-600 text-sm font-bold flex-shrink-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 text-sm font-bold flex-shrink-0">
                   3
                 </div>
                 <div>
@@ -128,7 +128,7 @@ const FaceEnrollmentPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main video area */}
           <div className="lg:col-span-2">
-            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-sm overflow-hidden">
+            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-sm overflow-hidden">
               <div className="p-4">
                 {/* Camera permission states - show UI hint when not yet granted */}
                 {cameraPermission !== "granted" && !showPreview && (
@@ -202,10 +202,10 @@ const FaceEnrollmentPage: React.FC = () => {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* Enrollment guidance - shown during recording */}
-            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-sm p-4">
+            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-sm p-4">
               <h3 className="text-sm font-bold text-zinc-100 mb-4 flex items-center gap-2">
                 <svg
-                  className="h-4 w-4 text-city-blue-500"
+                  className="h-4 w-4 text-blue-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
@@ -221,7 +221,7 @@ const FaceEnrollmentPage: React.FC = () => {
               </h3>
               <EnrollmentProgress />
               {!isRecording && !isCompleted && (
-                <p className="text-xs text-gray-400 text-center py-4">
+                <p className="text-xs text-zinc-500 text-center py-4">
                   Start recording to see the step-by-step face movement
                   guidance
                 </p>
@@ -230,10 +230,10 @@ const FaceEnrollmentPage: React.FC = () => {
 
             {/* Session info */}
             {currentSession && (
-              <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-sm p-4">
+              <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-sm p-4">
                 <h3 className="text-sm font-bold text-zinc-100 mb-3 flex items-center gap-2">
                   <svg
-                    className="h-4 w-4 text-city-blue-500"
+                    className="h-4 w-4 text-blue-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
@@ -289,7 +289,7 @@ const FaceEnrollmentPage: React.FC = () => {
                               ? "bg-red-500"
                               : currentSession.status === "recording"
                                 ? "bg-red-500 animate-pulse"
-                                : "bg-gray-400"
+                                : "bg-zinc-500"
                         }`}
                       />
                       {currentSession.uploadStatus === "success"
@@ -306,10 +306,10 @@ const FaceEnrollmentPage: React.FC = () => {
             )}
 
             {/* Requirements card */}
-            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-sm p-4">
+            <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-sm p-4">
               <h3 className="text-sm font-bold text-zinc-100 mb-3 flex items-center gap-2">
                 <svg
-                  className="h-4 w-4 text-city-blue-500"
+                  className="h-4 w-4 text-blue-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}

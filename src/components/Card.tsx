@@ -3,16 +3,21 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'glass' | 'gradient';
+  variant?: 'default' | 'glass';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
 }
 
-const Card: React.FC<CardProps> = ({ children, className = '', variant = 'default', padding = 'md', hover = false }) => {
+const Card: React.FC<CardProps> = ({
+  children,
+  className = '',
+  variant = 'default',
+  padding = 'md',
+  hover = false,
+}) => {
   const variants = {
-    default: 'bg-zinc-900/80 backdrop-blur-md border border-gray-100 shadow-card',
-    glass: 'glass-card',
-    gradient: 'gradient-city-light border border-white/50 shadow-card',
+    default: 'bg-zinc-900/80 backdrop-blur-md border border-zinc-800',
+    glass: 'bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/60',
   };
 
   const paddings = {
@@ -23,7 +28,11 @@ const Card: React.FC<CardProps> = ({ children, className = '', variant = 'defaul
   };
 
   return (
-    <div className={`rounded-2xl ${variants[variant]} ${paddings[padding]} ${hover ? 'hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1' : ''} ${className}`}>
+    <div
+      className={`rounded-2xl shadow-card ${variants[variant]} ${paddings[padding]} ${
+        hover ? 'hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer' : ''
+      } ${className}`}
+    >
       {children}
     </div>
   );

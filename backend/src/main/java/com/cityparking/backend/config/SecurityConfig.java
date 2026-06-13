@@ -81,10 +81,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/parking/slots").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parking/availability").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/parking/statistics").permitAll()
-                        // Optimization read endpoints - public (analytics/dashboard data)
-                        .requestMatchers(HttpMethod.GET, "/api/parking/optimization/**").permitAll()
-                        // Digital Twin read endpoints - public
-                        .requestMatchers(HttpMethod.GET, "/api/digital-twin/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

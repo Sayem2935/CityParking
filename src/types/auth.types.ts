@@ -7,6 +7,12 @@ export interface User {
   avatar?: string;
   role: string;
   isVerified: boolean;
+  // University ID fields (populated via document extraction)
+  studentName?: string;
+  studentId?: string;
+  universityName?: string;
+  department?: string;
+  session?: string;
   createdAt: string;
   updatedAt: string;
 }

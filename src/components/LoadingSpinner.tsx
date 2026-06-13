@@ -20,7 +20,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', variant = 
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-2.5 w-2.5 rounded-full bg-city-blue-500 animate-bounce"
+              className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}
@@ -44,7 +44,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', variant = 
     <div className="flex flex-col items-center justify-center gap-4 py-12">
       <div className="relative">
         <div className={`${sizes[size]} rounded-full border-2 border-white/10`} />
-        <div className={`absolute inset-0 ${sizes[size]} rounded-full border-2 border-transparent border-t-city-blue-500 animate-spin`} />
+        <div className={`absolute inset-0 ${sizes[size]} rounded-full border-2 border-transparent border-t-blue-500 animate-spin`} />
       </div>
       {text && <p className="text-sm text-zinc-500 font-medium">{text}</p>}
     </div>

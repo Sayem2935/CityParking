@@ -9,16 +9,16 @@ interface VerificationBadgeProps {
 const VerificationBadge: React.FC<VerificationBadgeProps> = ({ label, status, icon }) => {
   const statusConfig = {
     verified: {
-      bg: 'bg-emerald-50',
-      border: 'border-emerald-200',
-      text: 'text-emerald-700',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/20',
+      text: 'text-emerald-400',
       dot: 'bg-emerald-500',
       label: 'Verified',
     },
     pending: {
-      bg: 'bg-amber-900/30',
-      border: 'border-amber-200',
-      text: 'text-amber-700',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/20',
+      text: 'text-amber-400',
       dot: 'bg-amber-500',
       label: 'Pending',
     },
@@ -26,7 +26,7 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({ label, status, ic
       bg: 'bg-zinc-800/50',
       border: 'border-white/10',
       text: 'text-zinc-400',
-      dot: 'bg-gray-400',
+      dot: 'bg-zinc-500',
       label: 'Not Started',
     },
   };

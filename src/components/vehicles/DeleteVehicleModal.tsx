@@ -62,7 +62,7 @@ const DeleteVehicleModal: React.FC<DeleteVehicleModalProps> = ({
               {vehicle.vehicleColor}
             </p>
           </div>
-          <p className="text-xs text-gray-400 text-center mb-6">
+          <p className="text-xs text-zinc-500 text-center mb-6">
             This action cannot be undone. All parking history associated with
             this vehicle will be preserved.
           </p>

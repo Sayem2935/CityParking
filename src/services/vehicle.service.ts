@@ -35,8 +35,6 @@ const mapVehicleType = (backendType: string): VehicleType => {
   const typeMap: Record<string, VehicleType> = {
     CAR: "car",
     MOTORCYCLE: "motorcycle",
-    BUS: "bus",
-    VAN: "van",
   };
   return typeMap[backendType.toUpperCase()] ?? "car";
 };
@@ -46,8 +44,6 @@ const mapToBackendType = (frontendType: VehicleType): string => {
   const typeMap: Record<VehicleType, string> = {
     car: "CAR",
     motorcycle: "MOTORCYCLE",
-    bus: "BUS",
-    van: "VAN",
   };
   return typeMap[frontendType] ?? "CAR";
 };

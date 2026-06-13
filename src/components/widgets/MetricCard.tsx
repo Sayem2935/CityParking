@@ -13,19 +13,19 @@ interface MetricCardProps {
 
 const colorMap = {
   blue: {
-    gradient: 'from-city-blue-500 to-city-blue-600',
+    gradient: 'from-blue-500 to-blue-600',
     bg: 'bg-blue-900/30',
-    text: 'text-city-blue-500',
+    text: 'text-blue-500',
   },
   emerald: {
-    gradient: 'from-city-emerald-500 to-city-emerald-600',
+    gradient: 'from-emerald-500 to-emerald-600',
     bg: 'bg-emerald-50',
-    text: 'text-city-emerald-500',
+    text: 'text-emerald-500',
   },
   cyan: {
-    gradient: 'from-city-cyan-500 to-city-cyan-600',
+    gradient: 'from-cyan-500 to-cyan-600',
     bg: 'bg-cyan-50',
-    text: 'text-city-cyan-500',
+    text: 'text-cyan-500',
   },
   purple: {
     gradient: 'from-purple-500 to-purple-600',

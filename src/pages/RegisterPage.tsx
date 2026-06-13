@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
       <div className="hidden lg:flex lg:w-5/12 gradient-city relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-zinc-900/80 backdrop-blur-md rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-city-emerald-300 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-300 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
         </div>
 
         <div className="relative z-10 flex flex-col justify-center px-12 text-white">
@@ -94,7 +94,7 @@ const RegisterPage: React.FC = () => {
         <div className="w-full max-w-lg animate-fade-in">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-city-blue-500 text-white text-xl">🚗</div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-white text-xl">🚗</div>
             <span className="text-xl font-bold text-zinc-100">City Parking</span>
           </div>
 
@@ -186,7 +186,7 @@ const RegisterPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-gray-400 hover:text-zinc-400 transition-colors"
+                className="absolute right-3 top-[38px] text-zinc-500 hover:text-zinc-400 transition-colors"
               >
                 {showPassword ? (
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -202,12 +202,12 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-2">
-              <input type="checkbox" className="mt-1 h-4 w-4 rounded border-white/20 text-city-blue-500 focus:ring-city-blue-500" required />
+              <input type="checkbox" className="mt-1 h-4 w-4 rounded border-white/20 text-blue-500 focus:ring-blue-500" required />
               <span className="text-sm text-zinc-500">
                 I agree to City Parking's{' '}
-                <button type="button" className="text-city-blue-500 hover:underline">Terms of Service</button>
+                <button type="button" className="text-blue-500 hover:underline">Terms of Service</button>
                 {' '}and{' '}
-                <button type="button" className="text-city-blue-500 hover:underline">Privacy Policy</button>
+                <button type="button" className="text-blue-500 hover:underline">Privacy Policy</button>
               </span>
             </div>
 
@@ -224,7 +224,7 @@ const RegisterPage: React.FC = () => {
 
           <p className="mt-8 text-center text-sm text-zinc-500">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-city-blue-500 hover:text-city-blue-600 transition-colors">
+            <Link to="/login" className="font-semibold text-blue-500 hover:text-blue-600 transition-colors">
               Sign in
             </Link>
           </p>

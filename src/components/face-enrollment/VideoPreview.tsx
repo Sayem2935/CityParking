@@ -94,11 +94,11 @@ const VideoPreview: React.FC = () => {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium text-zinc-300">Uploading video...</span>
-            <span className="font-semibold text-city-blue-600">{uploadProgress}%</span>
+            <span className="font-semibold text-blue-600">{uploadProgress}%</span>
           </div>
           <div className="w-full bg-zinc-700 rounded-full h-2.5">
             <div
-              className="h-2.5 rounded-full bg-gradient-to-r from-city-blue-500 to-city-cyan-500 transition-all duration-300"
+              className="h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
@@ -134,7 +134,7 @@ const VideoPreview: React.FC = () => {
             <button
               onClick={uploadSession}
               disabled={isUploading}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-city-blue-500 to-city-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
             >
               {isUploading ? (
                 <>
@@ -162,7 +162,7 @@ const VideoPreview: React.FC = () => {
         <div className="flex justify-center">
           <button
             onClick={resetSession}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-city-blue-500 to-city-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

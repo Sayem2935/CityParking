@@ -1,49 +1,87 @@
 import React from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface ErrorMessageProps {
   message: string;
   onRetry?: () => void;
   className?: string;
+  variant?: "inline" | "card" | "page";
+  title?: string;
 }
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({
   message,
   onRetry,
   className = "",
+  variant = "inline",
+  title,
 }) => {
-  return (
-    <div
-      className={`rounded-lg border border-red-200 bg-red-900/30 p-4 animate-fade-in ${className}`}
-      role="alert"
-    >
-      <div className="flex items-start">
-        <div className="flex-shrink-0">
-          <svg
-            className="h-5 w-5 text-red-400"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-              clipRule="evenodd"
-            />
-          </svg>
+  if (variant === "page") {
+    return (
+      <div className={`flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in ${className}`}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 mb-4">
+          <AlertCircle className="w-8 h-8 text-red-400" />
         </div>
-        <div className="ml-3 flex-1">
-          <p className="text-sm text-red-800">{message}</p>
-        </div>
+        <h3 className="text-base font-semibold text-zinc-200 mb-1">
+          {title || "Something went wrong"}
+        </h3>
+        <p className="text-sm text-zinc-500 max-w-sm mb-6">{message}</p>
         {onRetry && (
-          <div className="ml-auto pl-3">
+          <button
+            onClick={onRetry}
+            className="btn-primary"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Try Again
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (variant === "card") {
+    return (
+      <div
+        className={`rounded-2xl border border-red-500/20 bg-red-500/5 p-5 animate-fade-in ${className}`}
+        role="alert"
+      >
+        <div className="flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            {title && (
+              <p className="text-sm font-semibold text-red-300 mb-1">{title}</p>
+            )}
+            <p className="text-sm text-red-400/80">{message}</p>
+          </div>
+          {onRetry && (
             <button
-              type="button"
               onClick={onRetry}
-              className="inline-flex rounded-md bg-red-900/30 px-2 py-1 text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+              className="shrink-0 text-sm font-medium text-red-400 hover:text-red-300 transition-colors px-3 py-1 rounded-lg hover:bg-red-500/10"
             >
               Retry
             </button>
-          </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Inline variant (default)
+  return (
+    <div
+      className={`rounded-xl border border-red-500/20 bg-red-500/10 p-4 animate-fade-in ${className}`}
+      role="alert"
+    >
+      <div className="flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+        <p className="flex-1 text-sm text-red-400">{message}</p>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="shrink-0 text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
+          >
+            Retry
+          </button>
         )}
       </div>
     </div>

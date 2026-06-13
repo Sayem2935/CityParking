@@ -1,13 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Car, Plus } from "lucide-react";
 
 const VehicleEmptyState: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
-      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-zinc-800 mb-6">
-        <span className="text-4xl">🚗</span>
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-800 mb-6">
+        <Car className="w-10 h-10 text-zinc-500" />
       </div>
       <h3 className="text-xl font-bold text-zinc-100 mb-2">
         No Vehicles Registered Yet
@@ -18,21 +19,9 @@ const VehicleEmptyState: React.FC = () => {
       </p>
       <button
         onClick={() => navigate("/vehicles/add")}
-        className="btn-primary inline-flex items-center gap-2"
+        className="btn-primary"
       >
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
-        </svg>
+        <Plus className="h-4 w-4" />
         Add Your First Vehicle
       </button>
     </div>

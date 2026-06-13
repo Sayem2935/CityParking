@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
             </h2>
             <p className="text-blue-100/80 text-lg leading-relaxed max-w-md">
               Experience the future of urban parking with AI-powered vehicle recognition, 
-              intelligent slot allocation, and real-time optimization.
+              intelligent slot allocation, and heat map visualization.
             </p>
           </div>
 
@@ -72,8 +72,8 @@ const LoginPage: React.FC = () => {
             {[
               { icon: '🤖', title: 'AI Face Verification', desc: 'Biometric access control' },
               { icon: '📹', title: 'YOLO v8 Detection', desc: 'Real-time vehicle recognition' },
-              { icon: '📊', title: 'LSTM Predictions', desc: 'Occupancy forecasting' },
-              { icon: '🧠', title: 'RL Optimization', desc: 'Dynamic slot allocation' },
+              { icon: '📊', title: 'Heat Map', desc: 'Occupancy visualization' },
+              { icon: '🎓', title: 'University ID', desc: 'Document extraction' },
             ].map((feature, i) => (
               <div
                 key={i}

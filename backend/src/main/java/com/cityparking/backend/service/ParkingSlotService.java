@@ -213,12 +213,6 @@ public class ParkingSlotService {
                 .build();
     }
 
-    public List<ParkingSlotResponse> getSlotsByFloor(Integer floorNumber) {
-        return parkingSlotRepository.findByFloorNumber(floorNumber).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
     private ParkingSlotResponse mapToResponse(ParkingSlot slot) {
         return ParkingSlotResponse.builder()
                 .id(slot.getId())
