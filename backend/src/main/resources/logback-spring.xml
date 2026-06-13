@@ -2,16 +2,11 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <!-- JSON structured logging for production -->
+    <!-- Production logging -->
     <springProfile name="production">
-        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <includeMdcKeyName>correlationId</includeMdcKeyName>
-                <includeMdcKeyName>userId</includeMdcKeyName>
-                <includeMdcKeyName>requestMethod</includeMdcKeyName>
-                <includeMdcKeyName>requestUri</includeMdcKeyName>
-                <customFields>{"service":"cityparking-backend","version":"1.0.0"}</customFields>
-                <timeZone>UTC</timeZone>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
         </appender>
 
@@ -24,16 +19,13 @@
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>1GB</totalSizeCap>
             </rollingPolicy>
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <includeMdcKeyName>correlationId</includeMdcKeyName>
-                <includeMdcKeyName>userId</includeMdcKeyName>
-                <customFields>{"service":"cityparking-backend","version":"1.0.0"}</customFields>
-                <timeZone>UTC</timeZone>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
         </appender>
 
         <root level="INFO">
-            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
 
