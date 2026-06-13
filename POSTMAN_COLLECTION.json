@@ -1,0 +1,593 @@
+{
+  "info": {
+    "name": "CityParking API",
+    "description": "Complete API collection for CityParking - Smart Parking Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "cityparking-backend"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints",
+      "item": [
+        {
+          "name": "User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"StrongPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Creates a new user account. Returns JWT token and user details."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"StrongPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates a user with email and password. Returns JWT token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "description": "User profile management endpoints",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Retrieves the authenticated user's profile information."
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe Updated\",\n  \"phone\": \"+880987654321\",\n  \"avatarUrl\": \"https://example.com/new-avatar.jpg\",\n  \"studentName\": \"John Doe\",\n  \"studentId\": \"STU-2026-001\",\n  \"universityName\": \"City University\",\n  \"department\": \"Computer Science\",\n  \"session\": \"2025-2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Updates the authenticated user's profile information."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "description": "Vehicle management endpoints",
+      "item": [
+        {
+          "name": "Get All Vehicles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles"]
+            },
+            "description": "Retrieves all vehicles belonging to the authenticated user."
+          }
+        },
+        {
+          "name": "Get Vehicle by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "1"]
+            },
+            "description": "Retrieves a specific vehicle by its ID."
+          }
+        },
+        {
+          "name": "Create Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"licensePlate\": \"ABC-1234\",\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"year\": 2024,\n  \"color\": \"White\",\n  \"vehicleType\": \"Sedan\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles"]
+            },
+            "description": "Registers a new vehicle for the authenticated user."
+          }
+        },
+        {
+          "name": "Update Vehicle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"licensePlate\": \"XYZ-5678\",\n  \"make\": \"Honda\",\n  \"model\": \"Civic\",\n  \"year\": 2025,\n  \"color\": \"Black\",\n  \"vehicleType\": \"Sedan\",\n  \"isDefault\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "1"]
+            },
+            "description": "Updates an existing vehicle."
+          }
+        },
+        {
+          "name": "Delete Vehicle",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "1"]
+            },
+            "description": "Deletes a vehicle belonging to the authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Face Enrollment",
+      "description": "Face enrollment endpoints",
+      "item": [
+        {
+          "name": "Upload Face Enrollment Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "notes",
+                  "value": "Face enrollment video",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/face-enrollment/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "face-enrollment", "upload"]
+            },
+            "description": "Uploads a video file for face enrollment."
+          }
+        },
+        {
+          "name": "Get Face Enrollment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/face-enrollment/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "face-enrollment", "1", "status"]
+            },
+            "description": "Retrieves the status of a face enrollment."
+          }
+        },
+        {
+          "name": "Get All Face Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/face-enrollment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "face-enrollment"]
+            },
+            "description": "Retrieves all face enrollment records for the user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Face Verification",
+      "description": "Face verification endpoints",
+      "item": [
+        {
+          "name": "Verify Face",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/face-verification/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "face-verification", "verify"]
+            },
+            "description": "Verifies a face image against enrolled face data."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plate Verification",
+      "description": "License plate verification endpoints",
+      "item": [
+        {
+          "name": "Verify License Plate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/plate-verification/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "plate-verification", "verify"]
+            },
+            "description": "Verifies a license plate image against registered vehicles."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access Verification",
+      "description": "Combined access verification endpoints",
+      "item": [
+        {
+          "name": "Verify Access",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "faceImage",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "plateImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/access-verification/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "access-verification", "verify"]
+            },
+            "description": "Performs combined face and plate verification for parking gate access."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parking",
+      "description": "Parking management endpoints",
+      "item": [
+        {
+          "name": "Get Parking Slots",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/parking/slots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parking", "slots"]
+            },
+            "description": "Retrieves all parking slots with their current status."
+          }
+        },
+        {
+          "name": "Get Parking Availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/parking/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parking", "availability"]
+            },
+            "description": "Retrieves current parking availability statistics."
+          }
+        },
+        {
+          "name": "Scan Parking Area",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "zone",
+                  "value": "Zone A",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/parking/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parking", "scan"]
+            },
+            "description": "Scans a parking area image to detect occupied and available slots."
+          }
+        },
+        {
+          "name": "Assign Parking Slot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slotId\": 1,\n  \"vehicleId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/parking/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parking", "assign"]
+            },
+            "description": "Assigns a parking slot to the authenticated user's vehicle."
+          }
+        },
+        {
+          "name": "Get Parking Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/parking/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parking", "statistics"]
+            },
+            "description": "Retrieves parking usage statistics and analytics."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Extraction",
+      "description": "University ID document extraction endpoints",
+      "item": [
+        {
+          "name": "Extract Document Information",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/extract",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "extract"]
+            },
+            "description": "Extracts text and structured data from a university ID document."
+          }
+        }
+      ]
+    }
+  ]
+}
