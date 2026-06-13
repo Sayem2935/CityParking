@@ -52,6 +52,12 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // Always allow OPTIONS (preflight) requests through without rate limiting
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (!rateLimitEnabled) {
             filterChain.doFilter(request, response);
             return;

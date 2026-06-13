@@ -2,6 +2,7 @@ package com.cityparking.backend.config;
 
 import com.cityparking.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -35,17 +36,18 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RateLimitingFilter rateLimitingFilter;
 
-    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    @Value("${app.cors.allowed-origins:https://cityparking-1.onrender.com,http://localhost:5173,http://localhost:3000,http://localhost:8080}")
     private String allowedOrigins;
 
-    private static final List<String> ALLOWED_METHODS = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
-    private static final List<String> ALLOWED_HEADERS = List.of("Authorization", "Content-Type", "X-Requested-With");
-    private static final List<String> EXPOSED_HEADERS = List.of("X-Rate-Limit-Rate", "X-Rate-Limit-Remaining", "Retry-After");
+    private static final List<String> ALLOWED_METHODS = List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
+    private static final List<String> ALLOWED_HEADERS = List.of("*");
+    private static final List<String> EXPOSED_HEADERS = List.of("*");
     private static final long MAX_AGE_SECONDS = 3600;
 
     @Bean
@@ -111,15 +113,22 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // Parse allowed origins from configuration
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(ALLOWED_METHODS);
         configuration.setAllowedHeaders(ALLOWED_HEADERS);
         configuration.setExposedHeaders(EXPOSED_HEADERS);
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(MAX_AGE_SECONDS);
 
+        // Debug logging for CORS configuration
+        log.info("=== CORS Configuration ===");
+        log.info("Allowed Origins: {}", origins);
+        log.info("Allowed Methods: {}", ALLOWED_METHODS);
+        log.info("Allowed Headers: {}", ALLOWED_HEADERS);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
