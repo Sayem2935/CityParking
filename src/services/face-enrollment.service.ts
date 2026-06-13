@@ -3,9 +3,9 @@ import type {
   FaceEnrollmentRecord,
 } from "@/types/face-enrollment.types";
 import { storage } from "@/utils";
+import { API_BASE_URL } from "./api";
 
 const SESSIONS_STORAGE_KEY = "parking_face_enrollment_sessions";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 const ALLOWED_VIDEO_TYPES = ["video/webm", "video/mp4", "video/quicktime"];
