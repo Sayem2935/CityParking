@@ -75,8 +75,6 @@ const ParkingDashboardPage: React.FC = () => {
     loading,
     error,
     refreshAll,
-    recordEntry,
-    recordExit,
   } = useParkingStore();
 
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
@@ -102,13 +100,10 @@ const ParkingDashboardPage: React.FC = () => {
 
   const handleSlotClick = useCallback(
     (slot: ParkingSlot) => {
-      if (slot.status === "FREE") {
-        recordEntry(slot.slotCode);
-      } else if (slot.status === "OCCUPIED") {
-        recordExit(slot.slotCode);
-      }
+      // Slot click currently informational only — entry/exit require userId + vehicleId / assignmentId
+      console.log("Slot clicked:", slot.slotCode, slot.status);
     },
-    [recordEntry, recordExit]
+    []
   );
 
   /* ── Loading ── */

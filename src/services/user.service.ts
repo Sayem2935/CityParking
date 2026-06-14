@@ -14,6 +14,12 @@ interface BackendUserResponse {
   role: string;
   vehicleCount: number;
   hasFaceEnrollment: boolean;
+  // University ID document extraction fields
+  studentName: string | null;
+  studentId: string | null;
+  universityName: string | null;
+  department: string | null;
+  session: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,6 +37,12 @@ function mapBackendUser(backend: BackendUserResponse): User {
     avatar: backend.avatarUrl ?? undefined,
     role: backend.role ?? 'USER',
     isVerified: backend.isActive ?? false,
+    // University ID document extraction fields
+    studentName: backend.studentName ?? undefined,
+    studentId: backend.studentId ?? undefined,
+    universityName: backend.universityName ?? undefined,
+    department: backend.department ?? undefined,
+    session: backend.session ?? undefined,
     createdAt: backend.createdAt,
     updatedAt: backend.updatedAt,
   };

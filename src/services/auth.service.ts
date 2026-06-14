@@ -35,6 +35,12 @@ interface BackendUserResponse {
   firstName: string;
   lastName: string;
   role: string;
+  // University ID document extraction fields
+  studentName?: string | null;
+  studentId?: string | null;
+  universityName?: string | null;
+  department?: string | null;
+  session?: string | null;
 }
 
 /** Shape of the error response from the backend GlobalExceptionHandler */
@@ -63,6 +69,12 @@ function mapUserResponse(data: BackendUserResponse): User {
     avatar: undefined,
     role: data.role ?? 'USER',
     isVerified: false,
+    // University ID document extraction fields
+    studentName: data.studentName ?? undefined,
+    studentId: data.studentId ?? undefined,
+    universityName: data.universityName ?? undefined,
+    department: data.department ?? undefined,
+    session: data.session ?? undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
