@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthStore>()((set, _get) => ({
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   login: async (credentials: LoginCredentials) => {
