@@ -152,11 +152,14 @@ public class PlateRecognitionService {
         return plateVerificationLogRepository.save(verificationLog);
     }
 
+    /**
+     * Normalize plate text for comparison.
+     * Preserves Unicode (Bangla) letters while removing whitespace and punctuation.
+     */
     private String normalizePlate(String plate) {
         if (plate == null) return "";
-        return plate.toUpperCase()
-                .replaceAll("[\\s\\-_]", "")
-                .replaceAll("[^A-Z0-9]", "");
+        return plate.trim().toUpperCase()
+                .replaceAll("[\\s\\-_]", "");
     }
 
     private boolean fuzzyMatch(String registered, String detected) {
@@ -167,13 +170,20 @@ public class PlateRecognitionService {
         int differences = Math.abs(registered.length() - detected.length());
 
         for (int i = 0; i < minLen; i++) {
-            char r = registered.charAt(i);
-            char d = detected.charAt(i);
+            int r = registered.codePointAt(i);
+            int d = detected.codePointAt(i);
             if (r != d) {
-                if (!((r == 'O' && d == '0') || (r == '0' && d == 'O') ||
-                      (r == 'I' && d == '1') || (r == '1' && d == 'I') ||
-                      (r == 'S' && d == '5') || (r == '5' && d == 'S') ||
-                      (r == 'B' && d == '8') || (r == '8' && d == 'B'))) {
+                // Only apply ASCII digit/letter confusions for BMP characters
+                if (r < 128 && d < 128) {
+                    char rc = (char) r;
+                    char dc = (char) d;
+                    if (!((rc == 'O' && dc == '0') || (rc == '0' && dc == 'O') ||
+                          (rc == 'I' && dc == '1') || (rc == '1' && dc == 'I') ||
+                          (rc == 'S' && dc == '5') || (rc == '5' && dc == 'S') ||
+                          (rc == 'B' && dc == '8') || (rc == '8' && dc == 'B'))) {
+                        differences++;
+                    }
+                } else {
                     differences++;
                 }
             }

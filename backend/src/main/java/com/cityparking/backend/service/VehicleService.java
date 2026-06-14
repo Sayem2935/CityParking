@@ -35,7 +35,7 @@ public class VehicleService {
         User user = getUserByEmail(email);
 
         if (vehicleRepository.existsByLicensePlateAndUserId(
-                request.getLicensePlate().toUpperCase().trim(), user.getId())) {
+                normalizeLicensePlate(request.getLicensePlate()), user.getId())) {
             throw new DuplicateResourceException(
                     "Vehicle with license plate '" + request.getLicensePlate() + "' already exists");
         }
@@ -50,7 +50,7 @@ public class VehicleService {
         boolean isFirstVehicle = existingVehicles.isEmpty();
 
         Vehicle vehicle = Vehicle.builder()
-                .licensePlate(request.getLicensePlate().toUpperCase().trim())
+                .licensePlate(normalizeLicensePlate(request.getLicensePlate()))
                 .make(request.getMake().trim())
                 .model(request.getModel().trim())
                 .year(request.getYear())
@@ -72,7 +72,7 @@ public class VehicleService {
 
         // Check for duplicate license plate (excluding current vehicle)
         if (vehicleRepository.existsByLicensePlateAndUserIdAndIdNot(
-                request.getLicensePlate().toUpperCase().trim(), user.getId(), vehicleId)) {
+                normalizeLicensePlate(request.getLicensePlate()), user.getId(), vehicleId)) {
             throw new DuplicateResourceException(
                     "Vehicle with license plate '" + request.getLicensePlate() + "' already exists");
         }
@@ -81,7 +81,7 @@ public class VehicleService {
             unsetDefaultVehicles(user.getId());
         }
 
-        vehicle.setLicensePlate(request.getLicensePlate().toUpperCase().trim());
+        vehicle.setLicensePlate(normalizeLicensePlate(request.getLicensePlate()));
         vehicle.setMake(request.getMake().trim());
         vehicle.setModel(request.getModel().trim());
         vehicle.setYear(request.getYear());
@@ -116,6 +116,15 @@ public class VehicleService {
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    /**
+     * Normalize license plate preserving Unicode (Bangla) characters.
+     * Java's toUpperCase() leaves Bangla script chars unchanged (they have no case distinction).
+     */
+    private String normalizeLicensePlate(String plate) {
+        if (plate == null) return "";
+        return plate.trim().toUpperCase();
     }
 
     private void unsetDefaultVehicles(Long userId) {

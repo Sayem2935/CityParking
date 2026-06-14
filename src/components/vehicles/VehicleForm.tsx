@@ -43,13 +43,20 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     }
   }, [vehicle]);
 
+  // Regex: Bangla Unicode block (\u0980-\u09FF), word chars, spaces, hyphens
+  const LICENSE_PLATE_REGEX = /^[\u0980-\u09FF\w\s\-]+$/;
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.vehicleNumber.trim()) {
       newErrors.vehicleNumber = "Vehicle number is required";
-    } else if (formData.vehicleNumber.trim().length < 3) {
-      newErrors.vehicleNumber = "Vehicle number must be at least 3 characters";
+    } else if (formData.vehicleNumber.trim().length < 2) {
+      newErrors.vehicleNumber = "Vehicle number must be at least 2 characters";
+    } else if (formData.vehicleNumber.trim().length > 50) {
+      newErrors.vehicleNumber = "Vehicle number must not exceed 50 characters";
+    } else if (!LICENSE_PLATE_REGEX.test(formData.vehicleNumber.trim())) {
+      newErrors.vehicleNumber = "Only Bangla/English letters, numbers, spaces, and hyphens are allowed";
     }
 
     if (!formData.vehicleBrand.trim()) {
@@ -147,7 +154,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
           name="vehicleNumber"
           value={formData.vehicleNumber}
           onChange={handleChange}
-          placeholder="e.g., ABC 1234"
+          placeholder="e.g., ঢাকা মেট্রো-গ ১২-৩৪৫৬ or Dhaka Metro-G 12-3456"
           className={`w-full rounded-xl border ${
             errors.vehicleNumber ? "border-red-300" : "border-white/10"
           } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20`}

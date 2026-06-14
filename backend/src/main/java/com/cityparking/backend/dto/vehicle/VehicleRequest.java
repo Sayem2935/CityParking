@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,11 @@ import lombok.NoArgsConstructor;
 public class VehicleRequest {
 
     @NotBlank(message = "License plate is required")
-    @Size(min = 2, max = 20, message = "License plate must be between 2 and 20 characters")
+    @Size(min = 2, max = 50, message = "License plate must be between 2 and 50 characters")
+    @Pattern(
+        regexp = "^[\\u0980-\\u09FF\\w\\s\\-]+$",
+        message = "License plate may contain Bangla letters, English letters, numbers, spaces, and hyphens only"
+    )
     private String licensePlate;
 
     @NotBlank(message = "Make is required")
