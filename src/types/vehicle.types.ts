@@ -17,6 +17,7 @@ export interface AddVehicleData {
   vehicleBrand: string;
   vehicleModel: string;
   vehicleColor: string;
+  vehicleYear: number;
 }
 
 export interface UpdateVehicleData extends AddVehicleData {

@@ -19,12 +19,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   onCancel,
   isLoading,
 }) => {
+  const currentYear = new Date().getFullYear();
   const [formData, setFormData] = useState<AddVehicleData>({
     vehicleNumber: "",
     vehicleType: "car",
     vehicleBrand: "",
     vehicleModel: "",
     vehicleColor: "",
+    vehicleYear: currentYear,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -36,6 +38,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
         vehicleBrand: vehicle.vehicleBrand,
         vehicleModel: vehicle.vehicleModel,
         vehicleColor: vehicle.vehicleColor,
+        vehicleYear: currentYear,
       });
     }
   }, [vehicle]);
@@ -59,6 +62,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
     if (!formData.vehicleColor.trim()) {
       newErrors.vehicleColor = "Color is required";
+    }
+
+    if (!formData.vehicleYear || formData.vehicleYear < 1900 || formData.vehicleYear > currentYear + 1) {
+      newErrors.vehicleYear = `Year must be between 1900 and ${currentYear + 1}`;
     }
 
     setErrors(newErrors);
@@ -226,6 +233,47 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
         {errors.vehicleColor && (
           <p className="mt-1.5 text-xs text-red-500 font-medium">
             {errors.vehicleColor}
+          </p>
+        )}
+      </div>
+
+      {/* Year */}
+      <div>
+        <label
+          htmlFor="vehicleYear"
+          className="block text-sm font-semibold text-zinc-300 mb-1.5"
+        >
+          Year <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          id="vehicleYear"
+          name="vehicleYear"
+          value={formData.vehicleYear}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFormData((prev) => ({
+              ...prev,
+              vehicleYear: val ? parseInt(val, 10) : currentYear,
+            }));
+            if (errors.vehicleYear) {
+              setErrors((prev) => {
+                const next = { ...prev };
+                delete next.vehicleYear;
+                return next;
+              });
+            }
+          }}
+          min={1900}
+          max={currentYear + 1}
+          placeholder={`e.g., ${currentYear}`}
+          className={`w-full rounded-xl border ${
+            errors.vehicleYear ? "border-red-300" : "border-white/10"
+          } bg-zinc-900/80 backdrop-blur-md px-4 py-3 text-sm font-medium text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+        />
+        {errors.vehicleYear && (
+          <p className="mt-1.5 text-xs text-red-500 font-medium">
+            {errors.vehicleYear}
           </p>
         )}
       </div>

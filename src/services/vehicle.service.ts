@@ -6,22 +6,27 @@ import type {
   VehicleType,
 } from "@/types";
 
-// Backend DTO types (as returned by the API)
+// Backend DTO types (as expected by the API - matches VehicleRequest.java and VehicleResponse.java)
 interface BackendVehicleResponse {
   id: number;
   licensePlate: string;
-  type: string;
-  brand: string;
+  make: string;
   model: string;
+  year: number;
   color: string;
+  vehicleType: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface BackendVehicleRequest {
   licensePlate: string;
-  type: string;
-  brand: string;
+  make: string;
   model: string;
+  year: number;
   color: string;
+  vehicleType: string;
 }
 
 interface ApiResponse<T> {
@@ -30,8 +35,9 @@ interface ApiResponse<T> {
   data: T;
 }
 
-// Map backend vehicle type enum to frontend type
-const mapVehicleType = (backendType: string): VehicleType => {
+// Map backend vehicle type to frontend type
+const mapVehicleType = (backendType: string | undefined): VehicleType => {
+  if (!backendType) return "car";
   const typeMap: Record<string, VehicleType> = {
     CAR: "car",
     MOTORCYCLE: "motorcycle",
@@ -52,24 +58,29 @@ const mapToBackendType = (frontendType: VehicleType): string => {
 const mapToFrontendVehicle = (backend: BackendVehicleResponse): Vehicle => ({
   id: String(backend.id),
   vehicleNumber: backend.licensePlate,
-  vehicleType: mapVehicleType(backend.type),
-  vehicleBrand: backend.brand,
+  vehicleType: mapVehicleType(backend.vehicleType),
+  vehicleBrand: backend.make,
   vehicleModel: backend.model,
   vehicleColor: backend.color,
-  isPrimary: false,
-  createdAt: new Date().toISOString(),
+  isPrimary: Boolean(backend.isDefault),
+  createdAt: backend.createdAt || new Date().toISOString(),
 });
 
 // Map frontend AddVehicleData to backend request
 const mapToBackendRequest = (
   data: AddVehicleData
-): BackendVehicleRequest => ({
-  licensePlate: data.vehicleNumber,
-  type: mapToBackendType(data.vehicleType),
-  brand: data.vehicleBrand,
-  model: data.vehicleModel,
-  color: data.vehicleColor,
-});
+): BackendVehicleRequest => {
+  const payload: BackendVehicleRequest = {
+    licensePlate: data.vehicleNumber,
+    make: data.vehicleBrand,
+    model: data.vehicleModel,
+    year: data.vehicleYear,
+    color: data.vehicleColor,
+    vehicleType: mapToBackendType(data.vehicleType),
+  };
+  console.log("Vehicle payload being sent to backend:", payload);
+  return payload;
+};
 
 class VehicleService {
   /**
@@ -113,7 +124,6 @@ class VehicleService {
   async deleteVehicle(vehicleId: string): Promise<void> {
     await apiClient.delete<ApiResponse<void>>(`/vehicles/${vehicleId}`);
   }
-
 }
 
 export const vehicleService = new VehicleService();
