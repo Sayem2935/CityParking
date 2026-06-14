@@ -53,10 +53,18 @@ public class ParkingAssignmentService {
         ParkingSlot slot = findNearestFreeSlot(preferredFloor, preferredZone)
                 .orElseThrow(() -> new BadRequestException("No free parking slots available"));
 
-        // Reserve the slot
-        slot.setStatus(SlotStatus.RESERVED);
+        // Log slot status before update
+        log.info("[ParkingAssignment] BEFORE assignSlot: slot={}, currentStatus={}", 
+                slot.getSlotCode(), slot.getStatus());
+
+        // Mark slot as OCCUPIED (production workflow: assign = vehicle physically parked)
+        slot.setStatus(SlotStatus.OCCUPIED);
         slot.setUpdatedAt(LocalDateTime.now());
         parkingSlotRepository.save(slot);
+
+        // Log slot status after update
+        log.info("[ParkingAssignment] AFTER assignSlot: slot={}, newStatus={}", 
+                slot.getSlotCode(), slot.getStatus());
 
         // Calculate distance from entrance (simple heuristic: floor * 50 + zone offset)
         int distance = calculateDistance(slot);
@@ -71,8 +79,8 @@ public class ParkingAssignmentService {
                 .build();
         parkingAssignmentRepository.save(assignment);
 
-        log.info("Assigned slot {} to user {} vehicle {} (distance: {}m)",
-                slot.getSlotCode(), userId, vehicleId, distance);
+        log.info("[ParkingAssignment] CREATED assignment: id={}, slot={}, userId={}, vehicleId={}, distance={}m",
+                assignment.getId(), slot.getSlotCode(), userId, vehicleId, distance);
 
         return ParkingAssignmentResponse.builder()
                 .id(assignment.getId())
@@ -99,18 +107,28 @@ public class ParkingAssignmentService {
             throw new BadRequestException("Assignment is not active (current status: " + assignment.getStatus() + ")");
         }
 
-        // Release slot
         ParkingSlot slot = assignment.getSlot();
+
+        // Log slot status before release
+        log.info("[ParkingAssignment] BEFORE releaseSlot: assignmentId={}, slot={}, currentStatus={}", 
+                assignmentId, slot.getSlotCode(), slot.getStatus());
+
+        // Release slot → mark as FREE
         slot.setStatus(SlotStatus.FREE);
         slot.setUpdatedAt(LocalDateTime.now());
         parkingSlotRepository.save(slot);
+
+        // Log slot status after release
+        log.info("[ParkingAssignment] AFTER releaseSlot: slot={}, newStatus={}", 
+                slot.getSlotCode(), slot.getStatus());
 
         // Update assignment
         assignment.setStatus(AssignmentStatus.RELEASED);
         assignment.setReleasedAt(LocalDateTime.now());
         parkingAssignmentRepository.save(assignment);
 
-        log.info("Released slot {} (assignment {})", slot.getSlotCode(), assignmentId);
+        log.info("[ParkingAssignment] RELEASED assignment: id={}, slot={}, userId={}, vehicleId={}", 
+                assignmentId, slot.getSlotCode(), assignment.getUserId(), assignment.getVehicleId());
 
         return ParkingAssignmentResponse.builder()
                 .id(assignment.getId())

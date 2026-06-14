@@ -99,14 +99,12 @@ public class ParkingController {
 
     @PostMapping("/release")
     @Operation(summary = "Release a parking slot", description = "Release a parking slot when vehicle exits")
-    public ResponseEntity<ParkingAssignmentResponse> releaseSlot(
-            @RequestParam(required = false) Long assignmentId,
-            @RequestParam(required = false) Long vehicleId) {
-        if (assignmentId != null) {
-            return ResponseEntity.ok(parkingAssignmentService.releaseSlot(assignmentId));
+    public ResponseEntity<ParkingAssignmentResponse> releaseSlot(@RequestBody ReleaseSlotRequest request) {
+        if (request.getAssignmentId() != null) {
+            return ResponseEntity.ok(parkingAssignmentService.releaseSlot(request.getAssignmentId()));
         }
-        if (vehicleId != null) {
-            return ResponseEntity.ok(parkingAssignmentService.releaseSlotByVehicle(vehicleId));
+        if (request.getVehicleId() != null) {
+            return ResponseEntity.ok(parkingAssignmentService.releaseSlotByVehicle(request.getVehicleId()));
         }
         return ResponseEntity.badRequest().build();
     }

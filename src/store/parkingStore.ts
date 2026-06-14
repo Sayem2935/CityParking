@@ -3,6 +3,7 @@ import { parkingService } from "@/services/parking.service";
 import type {
   ParkingSlot,
   ParkingAvailability,
+  ParkingAssignment,
   ParkingStatistics,
 } from "@/types/parking.types";
 
@@ -10,6 +11,7 @@ interface ParkingState {
   slots: ParkingSlot[];
   availability: ParkingAvailability | null;
   statistics: ParkingStatistics | null;
+  assignments: ParkingAssignment[];
   loading: boolean;
   error: string | null;
 
@@ -18,14 +20,15 @@ interface ParkingState {
   fetchAvailability: () => Promise<void>;
   fetchStatistics: () => Promise<void>;
   refreshAll: () => Promise<void>;
-  recordEntry: (slotCode: string) => Promise<void>;
-  recordExit: (slotCode: string) => Promise<void>;
+  recordEntry: (userId: number, vehicleId: number) => Promise<void>;
+  recordExit: (assignmentId: number) => Promise<void>;
 }
 
 export const useParkingStore = create<ParkingState>((set, get) => ({
   slots: [],
   availability: null,
   statistics: null,
+  assignments: [],
   loading: false,
   error: null,
 
@@ -72,46 +75,38 @@ export const useParkingStore = create<ParkingState>((set, get) => ({
     }
   },
 
-  recordEntry: async (slotCode: string) => {
-    set({ loading: true });
+  /** Assign a slot to a vehicle — calls POST /api/parking/assign */
+  recordEntry: async (userId: number, vehicleId: number) => {
+    set({ loading: true, error: null });
     try {
-      // Find a slot and assign it – simplified for demo
-      const slot = get().slots.find((s) => s.slotCode === slotCode);
-      if (slot) {
-        // Mark as occupied locally for instant UI feedback
-        set((state) => ({
-          slots: state.slots.map((s) =>
-            s.slotCode === slotCode ? { ...s, status: "OCCUPIED" as const } : s
-          ),
-        }));
-      }
+      const assignment = await parkingService.assignSlot(userId, vehicleId);
+      set((state) => ({ assignments: [...state.assignments, assignment] }));
+      console.log(`[Parking] Assignment created: slot=${assignment.slotCode}, assignmentId=${assignment.id}`);
       // Refresh from server to get authoritative state
       await get().refreshAll();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to record entry";
+      const message = err instanceof Error ? err.message : "Failed to assign slot";
       set({ error: message });
+      console.error("[Parking] recordEntry failed:", message);
       await get().refreshAll();
     }
   },
 
-  recordExit: async (slotCode: string) => {
-    set({ loading: true });
+  /** Release a parking assignment — calls POST /api/parking/release */
+  recordExit: async (assignmentId: number) => {
+    set({ loading: true, error: null });
     try {
-      // Find the assignment for this slot and release it
-      const stats = get().statistics;
-      if (stats) {
-        // Optimistic update – mark as free locally
-        set((state) => ({
-          slots: state.slots.map((s) =>
-            s.slotCode === slotCode ? { ...s, status: "FREE" as const } : s
-          ),
-        }));
-      }
-      // Refresh from server
+      await parkingService.releaseSlot(assignmentId);
+      set((state) => ({
+        assignments: state.assignments.filter((a) => a.id !== assignmentId),
+      }));
+      console.log(`[Parking] Assignment released: assignmentId=${assignmentId}`);
+      // Refresh from server to get authoritative state
       await get().refreshAll();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to record exit";
+      const message = err instanceof Error ? err.message : "Failed to release slot";
       set({ error: message });
+      console.error("[Parking] recordExit failed:", message);
       await get().refreshAll();
     }
   },
