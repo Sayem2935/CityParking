@@ -9,5 +9,6 @@ export { default as AddVehiclePage } from './AddVehiclePage';
 export { default as EditVehiclePage } from './EditVehiclePage';
 export { default as UniversityIdPage } from './UniversityIdPage';
 export { default as FaceEnrollmentPage } from './FaceEnrollmentPage';
+export { default as FaceVerificationPage } from './FaceVerificationPage';
 export { default as ParkingDashboardPage } from './ParkingDashboardPage';
 export { default as NotFoundPage } from './NotFoundPage';

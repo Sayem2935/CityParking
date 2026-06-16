@@ -61,7 +61,7 @@ app:
 # Tomorrow: change to gemini / aws once credentials are ready
 ai:
   provider:
-    face: ${AI_PROVIDER_FACE:mock}      # mock | aws
+    face: ${AI_PROVIDER_FACE:insightface}  # mock | aws | insightface  ← ACTIVATED
     vision: ${AI_PROVIDER_VISION:mock}   # mock | gemini
 # ── Gemini AI API (replaces FastAPI AI Service) ──────────────
 gemini:
@@ -72,7 +72,15 @@ gemini:
     connect-ms: ${GEMINI_CONNECT_TIMEOUT_MS:5000}
     read-ms: ${GEMINI_READ_TIMEOUT_MS:30000}
 
-# ── AWS Rekognition (Face Recognition) ───────────────────────
+# ── InsightFace FastAPI Microservice (Face Recognition) ──────
+insightface:
+  base-url: ${INSIGHTFACE_BASE_URL:http://localhost:8001}
+  connect-timeout-ms: ${INSIGHTFACE_CONNECT_TIMEOUT_MS:5000}
+  read-timeout-ms: ${INSIGHTFACE_READ_TIMEOUT_MS:30000}
+  similarity-threshold: ${INSIGHTFACE_SIMILARITY_THRESHOLD:0.45}
+  cache-refresh-interval-ms: ${INSIGHTFACE_CACHE_REFRESH_MS:300000}
+
+# ── AWS Rekognition (Face Recognition — Legacy) ──────────────
 aws:
   access-key-id: ${AWS_ACCESS_KEY_ID:}
   secret-access-key: ${AWS_SECRET_ACCESS_KEY:}

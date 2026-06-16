@@ -1,0 +1,7 @@
+# CityParking — Raspberry Pi Client Dependencies
+requests>=2.31.0
+Pillow>=10.0.0
+# Optional: install these on Raspberry Pi only
+# picamera2  (sudo apt install python3-picamera2)
+# RPi.GPIO   (sudo apt install python3-rpi.gpio)
+# opencv-python-headless  (for USB webcam capture)

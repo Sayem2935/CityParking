@@ -1,5 +1,5 @@
 import type {
-  EnrollmentSessionMetadata,
+  CaptureSessionMetadata,
   FaceEnrollmentRecord,
 } from "@/types/face-enrollment.types";
 import { storage } from "@/utils";
@@ -7,8 +7,8 @@ import { API_BASE_URL } from "./api";
 
 const SESSIONS_STORAGE_KEY = "parking_face_enrollment_sessions";
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
-const ALLOWED_VIDEO_TYPES = ["video/webm", "video/mp4", "video/quicktime"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB (image, not video)
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export interface UploadError {
   message: string;
@@ -18,37 +18,36 @@ export interface UploadError {
 
 export const faceEnrollmentService = {
   /**
-   * Validates the video file before upload.
+   * Validates the image file before upload.
    */
-  validateVideoFile(videoBlob: Blob): { valid: boolean; error?: string } {
-    if (!ALLOWED_VIDEO_TYPES.includes(videoBlob.type)) {
+  validateImageFile(imageBlob: Blob): { valid: boolean; error?: string } {
+    if (!ALLOWED_IMAGE_TYPES.includes(imageBlob.type)) {
       return {
         valid: false,
-        error: `Invalid file type "${videoBlob.type}". Allowed types: WebM, MP4, QuickTime.`,
+        error: `Invalid file type "${imageBlob.type}". Allowed types: JPEG, PNG, WebP.`,
       };
     }
-    if (videoBlob.size > MAX_FILE_SIZE) {
-      const sizeMB = (videoBlob.size / (1024 * 1024)).toFixed(1);
+    if (imageBlob.size > MAX_FILE_SIZE) {
+      const sizeMB = (imageBlob.size / (1024 * 1024)).toFixed(1);
       return {
         valid: false,
-        error: `File size (${sizeMB} MB) exceeds the maximum allowed size of 50 MB.`,
+        error: `File size (${sizeMB} MB) exceeds the maximum allowed size of 10 MB.`,
       };
     }
     return { valid: true };
   },
 
   /**
-   * Uploads a face enrollment video to the backend.
+   * Uploads a face enrollment image to the backend.
    * Uses XMLHttpRequest for real upload progress tracking.
    */
-  async uploadVideo(
-    videoBlob: Blob,
+  async uploadImage(
+    imageBlob: Blob,
     sessionId: string,
-    duration: number,
     onProgress?: (progress: number) => void
   ): Promise<FaceEnrollmentRecord> {
     // Validate file before uploading
-    const validation = this.validateVideoFile(videoBlob);
+    const validation = this.validateImageFile(imageBlob);
     if (!validation.valid) {
       const error: UploadError = {
         message: validation.error!,
@@ -68,14 +67,15 @@ export const faceEnrollmentService = {
       throw error;
     }
 
+    // Determine file extension from type
+    const ext = imageBlob.type === "image/png" ? "png" : imageBlob.type === "image/webp" ? "webp" : "jpg";
+
     // Build multipart form data
     const formData = new FormData();
-    // Create a File from Blob with proper name
-    const videoFile = new File([videoBlob], `${sessionId}.webm`, {
-      type: videoBlob.type,
+    const imageFile = new File([imageBlob], `${sessionId}.${ext}`, {
+      type: imageBlob.type,
     });
-    formData.append("video", videoFile);
-    formData.append("duration", Math.round(duration).toString());
+    formData.append("image", imageFile);
 
     return new Promise<FaceEnrollmentRecord>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -94,14 +94,13 @@ export const faceEnrollmentService = {
             const record: FaceEnrollmentRecord = response.data;
 
             // Persist session metadata locally
-            const metadata: EnrollmentSessionMetadata = {
+            const metadata: CaptureSessionMetadata = {
               id: sessionId,
-              duration: duration,
-              recordedAt: new Date().toISOString(),
-              status: "completed",
+              capturedAt: new Date().toISOString(),
+              status: "captured",
               uploadStatus: "success",
               uploadProgress: 100,
-              videoSize: videoBlob.size,
+              imageSize: imageBlob.size,
             };
             this.persistSessionMetadata(metadata);
 
@@ -157,7 +156,7 @@ export const faceEnrollmentService = {
 
       xhr.open("POST", `${API_BASE_URL}/face-enrollment/upload`);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      xhr.timeout = 120000; // 2 minute timeout
+      xhr.timeout = 60000; // 1 minute timeout (image is smaller than video)
       xhr.send(formData);
     });
   },
@@ -165,7 +164,7 @@ export const faceEnrollmentService = {
   /**
    * Persists session metadata to localStorage.
    */
-  persistSessionMetadata(metadata: EnrollmentSessionMetadata): void {
+  persistSessionMetadata(metadata: CaptureSessionMetadata): void {
     try {
       const existing = this.getAllSessionMetadata();
       existing.push(metadata);
@@ -178,7 +177,7 @@ export const faceEnrollmentService = {
   /**
    * Retrieves all persisted session metadata from localStorage.
    */
-  getAllSessionMetadata(): EnrollmentSessionMetadata[] {
+  getAllSessionMetadata(): CaptureSessionMetadata[] {
     try {
       const data = localStorage.getItem(SESSIONS_STORAGE_KEY);
       return data ? JSON.parse(data) : [];
@@ -190,7 +189,7 @@ export const faceEnrollmentService = {
   /**
    * Retrieves a specific session's metadata by ID.
    */
-  getSessionMetadata(sessionId: string): EnrollmentSessionMetadata | null {
+  getSessionMetadata(sessionId: string): CaptureSessionMetadata | null {
     const sessions = this.getAllSessionMetadata();
     return sessions.find((s) => s.id === sessionId) || null;
   },

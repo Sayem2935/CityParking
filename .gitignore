@@ -56,3 +56,32 @@ backend/.mvn/
 
 # Gradle
 .gradle/
+
+# Node
+node_modules/
+dist/
+
+# Python
+venv/
+.venv/
+face-ai/venv/
+face-ai/.venv/
+
+# InsightFace models
+face-ai/.insightface/
+
+# AI models
+*.onnx
+*.pt
+*.pth
+*.weights
+
+# Python cache
+__pycache__/
+*.pyc
+
+face-ai/*.jpg
+face-ai/*.jpeg
+face-ai/*.png
+face-ai/*.save
+

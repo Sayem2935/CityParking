@@ -18,6 +18,7 @@ const VehiclesPage = React.lazy(() => import("@/pages/VehiclesPage"));
 const AddVehiclePage = React.lazy(() => import("@/pages/AddVehiclePage"));
 const EditVehiclePage = React.lazy(() => import("@/pages/EditVehiclePage"));
 const FaceEnrollmentPage = React.lazy(() => import("@/pages/FaceEnrollmentPage"));
+const FaceVerificationPage = React.lazy(() => import("@/pages/FaceVerificationPage"));
 const UniversityIdPage = React.lazy(() => import("@/pages/UniversityIdPage"));
 const ParkingDashboardPage = React.lazy(() => import("@/pages/ParkingDashboardPage"));
 const NotFoundPage = React.lazy(() => import("@/pages/NotFoundPage"));
@@ -139,6 +140,14 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <AppShell><FaceEnrollmentPage /></AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/face-verification"
+              element={
+                <ProtectedRoute>
+                  <AppShell><FaceVerificationPage /></AppShell>
                 </ProtectedRoute>
               }
             />

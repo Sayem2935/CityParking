@@ -95,6 +95,18 @@ public class User {
     @Builder.Default
     private List<FaceEnrollment> faceEnrollments = new ArrayList<>();
 
+    // Multi-embedding enrollment metadata
+    @Column(name = "face_enrolled")
+    @Builder.Default
+    private Boolean faceEnrolled = false;
+
+    @Column(name = "face_enrolled_at")
+    private LocalDateTime faceEnrolledAt;
+
+    @Column(name = "face_embedding_count")
+    @Builder.Default
+    private Integer faceEmbeddingCount = 0;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

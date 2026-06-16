@@ -20,6 +20,7 @@ import org.springframework.context.event.EventListener;
  * Face providers (ai.provider.face):
  *   - MockFaceRecognitionService: @ConditionalOnProperty(havingValue="mock", matchIfMissing=true)
  *   - AwsRekognitionService: @ConditionalOnProperty(havingValue="aws")
+ *   - InsightFaceFaceRecognitionService: @ConditionalOnProperty(havingValue="insightface")
  *
  * This config class validates that required credentials are present when
  * real providers are selected, and logs the active provider configuration
@@ -32,6 +33,7 @@ public class AiProviderConfig {
 
     private final GeminiProperties geminiProperties;
     private final AwsProperties awsProperties;
+    private final InsightFaceProperties insightFaceProperties;
 
     @Value("${ai.provider.face:mock}")
     private String faceProvider;
@@ -39,9 +41,11 @@ public class AiProviderConfig {
     @Value("${ai.provider.vision:mock}")
     private String visionProvider;
 
-    public AiProviderConfig(GeminiProperties geminiProperties, AwsProperties awsProperties) {
+    public AiProviderConfig(GeminiProperties geminiProperties, AwsProperties awsProperties,
+                            InsightFaceProperties insightFaceProperties) {
         this.geminiProperties = geminiProperties;
         this.awsProperties = awsProperties;
+        this.insightFaceProperties = insightFaceProperties;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -70,6 +74,16 @@ public class AiProviderConfig {
             }
             log.info("  AWS Region     : {}", awsProperties.getRegion());
             log.info("  AWS Collection : {}", awsProperties.getCollectionId());
+        }
+
+        if ("insightface".equals(faceProvider)) {
+            if (insightFaceProperties.isConfigured()) {
+                log.info("  InsightFace URL: {}", insightFaceProperties.getBaseUrl());
+            } else {
+                log.warn("  InsightFace URL: [NOT SET] - Set INSIGHTFACE_BASE_URL!");
+            }
+            log.info("  Similarity     : {}", insightFaceProperties.getSimilarityThreshold());
+            log.info("  Cache Refresh  : {}ms", insightFaceProperties.getCacheRefreshIntervalMs());
         }
 
         log.info("============================================================");

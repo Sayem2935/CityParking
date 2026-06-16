@@ -6,6 +6,7 @@ import {
   ParkingSquare,
   Car,
   ScanFace,
+  ShieldCheck,
   UserCircle,
   GraduationCap,
   ChevronLeft,
@@ -22,6 +23,7 @@ const navItems: NavItem[] = [
   { label: 'Parking', path: '/parking', icon: ParkingSquare },
   { label: 'My Vehicles', path: '/vehicles', icon: Car },
   { label: 'Face Enrollment', path: '/face-enrollment', icon: ScanFace },
+  { label: 'Face Verification', path: '/face-verification', icon: ShieldCheck },
   { label: 'Profile', path: '/profile', icon: UserCircle },
   { label: 'University ID', path: '/university-id', icon: GraduationCap },
 ];

@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 /**
  * Service for face enrollment operations.
  *
- * MIGRATED: Now uses FaceRecognitionService (AWS Rekognition) instead of
- * FaceProcessingService (FastAPI/InsightFace embeddings).
+ * Provider-agnostic: delegates face processing to the active FaceRecognitionService
+ * implementation (mock, aws, or insightface) as configured via ai.provider.face.
  *
- * New flow:
+ * Flow:
  *   User → Capture Face → FaceRecognitionService.enrollFace()
- *   → Store externalFaceId, collectionId, provider → Complete
+ *   → Store externalFaceId, provider, confidence → Complete
  */
 @Service
 public class FaceEnrollmentService {
@@ -66,9 +66,9 @@ public class FaceEnrollmentService {
     }
 
     /**
-     * Process a face enrollment using AWS Rekognition.
+     * Process a face enrollment using the configured FaceRecognitionService provider.
      *
-     * Reads the image file and sends it to FaceRecognitionService for indexing.
+     * Reads the image file and sends it to FaceRecognitionService for processing.
      * Stores the returned externalFaceId, collectionId, and provider.
      *
      * @param enrollmentId The enrollment ID to process
@@ -106,7 +106,7 @@ public class FaceEnrollmentService {
             FaceRecognitionService.FaceEnrollResult result =
                     faceRecognitionService.enrollFace(imageBytes, enrollment.getUser().getId());
 
-            // Store AWS Rekognition metadata
+            // Store face recognition metadata
             enrollment.setExternalFaceId(result.getExternalFaceId());
             enrollment.setCollectionId(result.getCollectionId());
             enrollment.setProvider(result.getProvider());
@@ -171,7 +171,7 @@ public class FaceEnrollmentService {
     }
 
     /**
-     * Delete enrollment and remove face from Rekognition collection.
+     * Delete enrollment and remove face from recognition provider.
      */
     @Transactional
     public boolean deleteEnrollment(Long userId) {
@@ -185,15 +185,15 @@ public class FaceEnrollmentService {
 
         FaceEnrollment enrollment = optionalEnrollment.get();
 
-        // Delete face from Rekognition collection if it was enrolled
+        // Delete face from recognition provider if it was enrolled
         if (enrollment.getExternalFaceId() != null
                 && enrollment.getStatus() == FaceEnrollment.EnrollmentStatus.COMPLETED) {
             try {
                 faceRecognitionService.deleteFace(enrollment.getExternalFaceId());
-                log.info("Deleted face from Rekognition: {}", enrollment.getExternalFaceId());
+                log.info("Deleted face from provider: {}", enrollment.getExternalFaceId());
             } catch (Exception e) {
-                log.error("Failed to delete face from Rekognition: {}", e.getMessage(), e);
-                // Continue with local deletion even if Rekognition delete fails
+                log.error("Failed to delete face from provider: {}", e.getMessage(), e);
+                // Continue with local deletion even if provider delete fails
             }
         }
 
@@ -224,7 +224,7 @@ public class FaceEnrollmentService {
         faceEnrollmentRepository.save(enrollment);
 
         try {
-            // Delete old face from Rekognition if exists
+            // Delete old face from provider if exists
             if (enrollment.getExternalFaceId() != null) {
                 try {
                     faceRecognitionService.deleteFace(enrollment.getExternalFaceId());

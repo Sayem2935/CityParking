@@ -2,7 +2,9 @@ package com.cityparking.backend.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,18 @@ public class StartupValidator {
 
     @Value("${ai.service.url:}")
     private String aiServiceUrl;
+
+    @Value("${ai.provider.face:mock}")
+    private String faceProvider;
+
+    @Value("${insightface.base-url:http://localhost:8001}")
+    private String insightfaceBaseUrl;
+
+    @Value("${insightface.similarity-threshold:0.45}")
+    private double insightfaceThreshold;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @PostConstruct
     public void validate() {
@@ -75,6 +89,40 @@ public class StartupValidator {
             warnings.add("AI_SERVICE_URL is not configured - AI features will be unavailable");
         } else {
             log.info("  ✓ AI service URL configured: {}", aiServiceUrl);
+        }
+
+        // ── Face Provider Startup Logging ──────────────────────────────
+        log.info("───────────────────────────────────────────────────");
+        log.info("  FACE RECOGNITION PROVIDER");
+        log.info("───────────────────────────────────────────────────");
+        log.info("  Active face provider       : {}", faceProvider.toUpperCase());
+        if ("insightface".equalsIgnoreCase(faceProvider)) {
+            log.info("  InsightFace URL            : {}", insightfaceBaseUrl);
+            log.info("  Similarity threshold       : {}", insightfaceThreshold);
+
+            // Verify the InsightFaceFaceRecognitionService bean is loaded
+            boolean insightfaceBeanLoaded = applicationContext.getBeansOfType(
+                    com.cityparking.backend.service.ai.FaceRecognitionService.class)
+                    .values().stream()
+                    .anyMatch(b -> b.getClass().getSimpleName().equals("InsightFaceFaceRecognitionService"));
+            log.info("  InsightFaceService loaded  : {}", insightfaceBeanLoaded);
+
+            // Verify MockFaceRecognitionService is NOT active
+            boolean mockBeanLoaded = applicationContext.getBeansOfType(
+                    com.cityparking.backend.service.ai.FaceRecognitionService.class)
+                    .values().stream()
+                    .anyMatch(b -> b.getClass().getSimpleName().equals("MockFaceRecognitionService"));
+            if (mockBeanLoaded) {
+                log.warn("  ⚠ MockFaceRecognitionService is ALSO loaded — this should NOT happen!");
+            } else {
+                log.info("  MockFaceService active     : false (correct)");
+            }
+
+            if (!insightfaceBeanLoaded) {
+                warnings.add("InsightFace provider selected but InsightFaceFaceRecognitionService bean was NOT loaded — check ai.provider.face property");
+            }
+        } else if ("mock".equalsIgnoreCase(faceProvider)) {
+            log.warn("  ⚠ Face provider is MOCK — no real face recognition will occur!");
         }
 
         // Print warnings

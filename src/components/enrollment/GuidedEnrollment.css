@@ -1,0 +1,507 @@
+/* ══════════════════════════════════════════════════════════
+   GuidedEnrollment — Premium Guided Face Enrollment UI
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Container ─────────────────────────────────────────── */
+
+.ge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ── Cards ─────────────────────────────────────────────── */
+
+.ge-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem;
+  text-align: center;
+  max-width: 520px;
+  width: 100%;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  animation: ge-fade-in 0.4s ease-out;
+}
+
+@keyframes ge-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ge-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.ge-icon-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.ge-icon-error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.ge-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+}
+
+.ge-description {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Pose Preview Chips ────────────────────────────────── */
+
+.ge-pose-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.ge-pose-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.ge-pose-chip-icon {
+  font-size: 1rem;
+}
+
+.ge-pose-chip-label {
+  text-transform: capitalize;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+
+.ge-btn {
+  padding: 0.75rem 1.75rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+
+.ge-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.ge-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+.ge-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ge-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ge-btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.ge-btn-ghost:hover {
+  color: #e2e8f0;
+}
+
+/* ── Loading / Spinner ─────────────────────────────────── */
+
+.ge-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ge-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: ge-spin 0.8s linear infinite;
+}
+
+@keyframes ge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ge-loading-text {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* ── Capture Layout ────────────────────────────────────── */
+
+.ge-capture-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 680px;
+  width: 100%;
+  animation: ge-fade-in 0.4s ease-out;
+}
+
+/* ── Progress Bar ──────────────────────────────────────── */
+
+.ge-progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ge-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.ge-progress-label {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ── Camera ────────────────────────────────────────────── */
+
+.ge-camera-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+.ge-webcam {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Pose Overlay ──────────────────────────────────────── */
+
+.ge-pose-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.ge-pose-instruction {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
+
+.ge-pose-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.ge-pose-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Countdown Overlay ─────────────────────────────────── */
+
+.ge-countdown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.ge-countdown-number {
+  font-size: 6rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: ge-countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ge-countdown-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* ── Capture Indicator ─────────────────────────────────── */
+
+.ge-capture-indicator {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.ge-capture-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  animation: ge-blink 1s ease-in-out infinite;
+}
+
+@keyframes ge-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ── Pose Navigation ───────────────────────────────────── */
+
+.ge-pose-nav {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* ── Pose Status Row ───────────────────────────────────── */
+
+.ge-pose-status-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.ge-pose-status-chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  opacity: 0.4;
+}
+
+.ge-pose-status-chip.ge-pose-done {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  opacity: 1;
+}
+
+.ge-pose-status-chip.ge-pose-current {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  opacity: 1;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+/* ── Processing Card ───────────────────────────────────── */
+
+.ge-processing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ge-processing-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.ge-processing-desc {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  max-width: 360px;
+}
+
+.ge-processing-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.ge-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ge-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+.ge-stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+/* ── Result Stats ──────────────────────────────────────── */
+
+.ge-result-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.ge-result-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ge-result-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.ge-result-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+/* ── Error Card ────────────────────────────────────────── */
+
+.ge-error-card {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.ge-error-message {
+  color: #fca5a5;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.ge-error-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .ge-container {
+    padding: 1rem;
+  }
+
+  .ge-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .ge-camera-wrapper {
+    border-radius: 12px;
+  }
+
+  .ge-pose-preview {
+    gap: 0.35rem;
+  }
+
+  .ge-pose-chip {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .ge-result-stats {
+    gap: 1rem;
+  }
+
+  .ge-processing-stats {
+    gap: 1rem;
+  }
+}

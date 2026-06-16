@@ -26,4 +26,9 @@ public class FaceVerificationResponse {
     private String message;
     private String provider;
     private boolean multipleFacesDetected;
+
+    // Multi-embedding match details
+    private String matchedPose;
+    private Long matchedEmbeddingId;
+    private Integer embeddingsCompared;
 }

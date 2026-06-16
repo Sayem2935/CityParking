@@ -4,3 +4,4 @@ export { vehicleService } from './vehicle.service';
 export { faceEnrollmentService } from './face-enrollment.service';
 export { parkingService } from './parking.service';
 export { documentService } from './document.service';
+export { faceVerificationService } from './face-verification.service';

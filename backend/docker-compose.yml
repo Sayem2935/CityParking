@@ -97,10 +97,42 @@ services:
     networks:
       - parking-network
 
-  # NOTE: FastAPI AI Service has been REMOVED.
-  # All AI functionality now uses external cloud APIs:
-  #   - Gemini API for: ANPR, vehicle detection, parking detection, analytics
-  #   - AWS Rekognition for: face enrollment, face verification
+  # ──────────────────────────────────────────────────────────
+  # Face AI Microservice (FastAPI + InsightFace)
+  # ──────────────────────────────────────────────────────────
+  face-ai:
+    build:
+      context: ../face-ai
+      dockerfile: Dockerfile
+    container_name: parking-face-ai
+    restart: unless-stopped
+    environment:
+      FACE_AI_HOST: "0.0.0.0"
+      FACE_AI_PORT: "8001"
+      FACE_AI_SIMILARITY_THRESHOLD: ${INSIGHTFACE_SIMILARITY_THRESHOLD:-0.45}
+    ports:
+      - "${FACE_AI_PORT:-8001}:8001"
+    volumes:
+      - face_models:/root/.insightface
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+        reservations:
+          memory: 1G
+    networks:
+      - parking-network
+
+  # NOTE: AWS Rekognition is now legacy.
+  # Face recognition uses local InsightFace via the face-ai service above.
+  # Vision functionality uses Gemini API.
   # See ARCHITECTURE_MIGRATION_REPORT.md for details.
 # ──────────────────────────────────────────────────────────
 # Volumes - Persistent Data
@@ -109,6 +141,8 @@ volumes:
   postgres_data:
     driver: local
   upload_data:
+    driver: local
+  face_models:
     driver: local
 
 # ──────────────────────────────────────────────────────────
