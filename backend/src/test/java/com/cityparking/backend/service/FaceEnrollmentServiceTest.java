@@ -72,13 +72,13 @@ class FaceEnrollmentServiceTest {
 
     @Test
     void getEnrollmentStatus_WithCompletedEnrollment_ReturnsEnrolled() {
-        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
         when(faceEnrollmentRepository.findFirstByUserIdOrderByCreatedAtDesc(1L))
                 .thenReturn(Optional.of(testEnrollment));
 
         FaceEnrollmentStatusResponse response = faceEnrollmentService.getEnrollmentStatus(1L);
 
-        assertEquals(FaceEnrollment.EnrollmentStatus.COMPLETED, response.getStatus());
+        assertEquals(FaceEnrollment.EnrollmentStatus.ENROLLED, response.getStatus());
         assertEquals(1L, response.getUserId());
     }
 
@@ -104,7 +104,7 @@ class FaceEnrollmentServiceTest {
 
     @Test
     void deleteEnrollment_WithCompletedEnrollment_DeletesFromRekognitionAndDb() {
-        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
         testEnrollment.setExternalFaceId("aws-face-123");
 
         when(faceEnrollmentRepository.findFirstByUserIdOrderByCreatedAtDesc(1L))

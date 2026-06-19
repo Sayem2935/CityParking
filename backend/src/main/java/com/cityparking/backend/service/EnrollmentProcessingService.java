@@ -118,7 +118,10 @@ public class EnrollmentProcessingService {
         }
 
         // Update enrollment record
-        enrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+        // face_enrollments.chk_enrollment_status defines ENROLLED as the only
+        // successful terminal state.  SessionStatus.COMPLETED is a distinct
+        // lifecycle and must never be used in this table.
+        enrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
         enrollmentRepository.save(enrollment);
 
         // Complete session (participates in THIS transaction via REQUIRED propagation)

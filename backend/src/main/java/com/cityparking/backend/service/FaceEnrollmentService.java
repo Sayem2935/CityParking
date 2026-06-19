@@ -111,7 +111,7 @@ public class FaceEnrollmentService {
             enrollment.setCollectionId(result.getCollectionId());
             enrollment.setProvider(result.getProvider());
             enrollment.setConfidence((double) result.getConfidence());
-            enrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+            enrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
             enrollment.setErrorMessage(null);
 
             faceEnrollmentRepository.save(enrollment);
@@ -187,7 +187,7 @@ public class FaceEnrollmentService {
 
         // Delete face from recognition provider if it was enrolled
         if (enrollment.getExternalFaceId() != null
-                && enrollment.getStatus() == FaceEnrollment.EnrollmentStatus.COMPLETED) {
+                && enrollment.getStatus() == FaceEnrollment.EnrollmentStatus.ENROLLED) {
             try {
                 faceRecognitionService.deleteFace(enrollment.getExternalFaceId());
                 log.info("Deleted face from provider: {}", enrollment.getExternalFaceId());
@@ -246,7 +246,7 @@ public class FaceEnrollmentService {
             enrollment.setProvider(result.getProvider());
             enrollment.setConfidence((double) result.getConfidence());
             enrollment.setImagePath(newImagePath);
-            enrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+            enrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
             enrollment.setErrorMessage(null);
 
             faceEnrollmentRepository.save(enrollment);

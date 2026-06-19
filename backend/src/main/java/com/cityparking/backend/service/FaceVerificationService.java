@@ -81,7 +81,7 @@ public class FaceVerificationService {
             Optional<FaceEnrollment> optionalEnrollment =
                     faceEnrollmentRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
             if (optionalEnrollment.isEmpty() ||
-                    optionalEnrollment.get().getStatus() != FaceEnrollment.EnrollmentStatus.COMPLETED) {
+                    optionalEnrollment.get().getStatus() != FaceEnrollment.EnrollmentStatus.ENROLLED) {
                 return buildFailedResponse("User face enrollment is not active", "insightface");
             }
 
@@ -197,7 +197,7 @@ public class FaceVerificationService {
                     faceEnrollmentRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
 
             if (optionalEnrollment.isEmpty() ||
-                    optionalEnrollment.get().getStatus() != FaceEnrollment.EnrollmentStatus.COMPLETED) {
+                    optionalEnrollment.get().getStatus() != FaceEnrollment.EnrollmentStatus.ENROLLED) {
                 log.warn("User {} found but enrollment is not active", userId);
                 return FaceVerificationResponse.builder()
                         .verified(false)
@@ -238,7 +238,7 @@ public class FaceVerificationService {
         Optional<FaceEnrollment> enrollment =
                 faceEnrollmentRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
         return enrollment.isPresent() &&
-                enrollment.get().getStatus() == FaceEnrollment.EnrollmentStatus.COMPLETED;
+                enrollment.get().getStatus() == FaceEnrollment.EnrollmentStatus.ENROLLED;
     }
 
     private FaceVerificationResponse buildFailedResponse(String message, String provider) {

@@ -48,7 +48,7 @@ class FaceVerificationServiceTest {
         testEnrollment = new FaceEnrollment();
         testEnrollment.setId(1L);
         testEnrollment.setUserId(1L);
-        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
+        testEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.ENROLLED);
         testEnrollment.setExternalFaceId("aws-face-123");
         testEnrollment.setCollectionId("test-collection");
         testEnrollment.setProvider("aws");

@@ -102,7 +102,6 @@ public class FaceEnrollment {
         PENDING,
         PROCESSING,
         ENROLLED,
-        FAILED,
-        COMPLETED
+        FAILED
     }
 }
