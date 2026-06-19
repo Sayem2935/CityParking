@@ -81,6 +81,9 @@ def process_enrollment_batch(
     raw_embeddings = []
     raw_metadata = []
 
+    # Phase 6: Summary counters for logging
+    rejection_reasons = {}
+
     for i, (frame_bytes, pose_label) in enumerate(zip(frames_bytes, pose_labels)):
         try:
             # Decode image
@@ -93,13 +96,23 @@ def process_enrollment_batch(
                     "pose_label": pose_label,
                 })
                 result.quality_failed += 1
+                rejection_reasons["decode_failed"] = rejection_reasons.get("decode_failed", 0) + 1
+                logger.warning("[Phase 6] Frame %d (%s): decode failed", i, pose_label)
                 continue
 
             # Run face detection
             faces = face_service._app.get(img)
+            logger.debug("[Phase 6] Frame %d (%s): detected %d face(s)", i, pose_label, len(faces))
 
-            # Run quality pipeline
-            quality_report = run_quality_pipeline(img, faces)
+            # Phase 7: Use pre_validated=True since these frames already passed
+            # /face/validate-frame — avoid double-filtering
+            quality_report = run_quality_pipeline(img, faces, pre_validated=True)
+            logger.debug(
+                "[Phase 6] Frame %d (%s): quality_passed=%s, blur=%.1f, "
+                "face_score=%.3f, rejection=%s",
+                i, pose_label, quality_report.passed, quality_report.blur_score,
+                quality_report.face_score, quality_report.rejection_reason,
+            )
             result.quality_reports.append({
                 "frame_index": i,
                 "pose_label": pose_label,
@@ -107,13 +120,21 @@ def process_enrollment_batch(
             })
 
             if not quality_report.passed:
+                reason = quality_report.rejection_reason or "unknown"
                 result.rejected_frames.append({
                     "frame_index": i,
-                    "reason": quality_report.rejection_reason,
+                    "reason": reason,
                     "pose_label": pose_label,
                     "blur_score": quality_report.blur_score,
                 })
                 result.quality_failed += 1
+                rejection_reasons[reason] = rejection_reasons.get(reason, 0) + 1
+                logger.info(
+                    "[Phase 6] Frame %d (%s): REJECTED by quality — %s (blur=%.1f, "
+                    "face_score=%.3f)",
+                    i, pose_label, reason, quality_report.blur_score,
+                    quality_report.face_score,
+                )
                 continue
 
             result.quality_passed += 1
@@ -156,6 +177,10 @@ def process_enrollment_batch(
 
     result.embeddings_extracted = len(raw_embeddings)
 
+    # Phase 6: Log rejection summary
+    if rejection_reasons:
+        logger.info("[Phase 6] Rejection summary: %s", dict(rejection_reasons))
+
     # Deduplication
     if raw_embeddings:
         deduped_embs, deduped_meta, selected_indices = deduplicate_embeddings(
@@ -165,21 +190,48 @@ def process_enrollment_batch(
             max_embeddings=max_embeddings,
         )
 
+        removed_by_dedup = len(raw_embeddings) - len(deduped_embs)
         result.embeddings = [emb.tolist() for emb in deduped_embs]
         result.metadata = deduped_meta
         result.embeddings_after_dedup = len(deduped_embs)
+
+        logger.info(
+            "[Phase 6] Deduplication: %d raw → %d after dedup (%d removed, threshold=%.2f)",
+            len(raw_embeddings), len(deduped_embs), removed_by_dedup, dedup_threshold,
+        )
     else:
         result.embeddings_after_dedup = 0
+        logger.warning(
+            "[Phase 6] No embeddings to deduplicate — 0 raw embeddings from %d frames",
+            result.total_frames,
+        )
 
     result.processing_time_ms = (time.time() - start) * 1000
 
+    # Phase 6: Comprehensive summary log
     logger.info(
-        "Batch enrollment: %d frames → %d quality → %d embeddings → %d after dedup (%.1fms)",
+        "[Phase 6] Batch enrollment COMPLETE: "
+        "%d frames received → %d quality passed → %d quality failed → "
+        "%d embeddings extracted → %d after dedup → FINAL: %d embeddings (%.1fms)",
         result.total_frames,
         result.quality_passed,
+        result.quality_failed,
         result.embeddings_extracted,
+        result.embeddings_after_dedup,
         result.embeddings_after_dedup,
         result.processing_time_ms,
     )
+
+    if result.embeddings_after_dedup == 0:
+        logger.error(
+            "[Phase 6] ROOT CAUSE ANALYSIS: Zero embeddings produced. "
+            "total=%d, quality_passed=%d, quality_failed=%d, extracted=%d, "
+            "rejection_reasons=%s",
+            result.total_frames,
+            result.quality_passed,
+            result.quality_failed,
+            result.embeddings_extracted,
+            dict(rejection_reasons) if rejection_reasons else "none",
+        )
 
     return result

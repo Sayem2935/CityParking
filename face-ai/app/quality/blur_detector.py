@@ -12,7 +12,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Minimum Laplacian variance for a frame to be considered sharp
-DEFAULT_BLUR_THRESHOLD = 80.0
+# Relaxed for webcam environments
+DEFAULT_BLUR_THRESHOLD = 30.0
 
 
 def compute_blur_score(image: np.ndarray) -> float:

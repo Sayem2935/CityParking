@@ -4,6 +4,7 @@ import type {
   StartSessionApiResponse,
   FrameUploadApiResponse,
   SessionStatusApiResponse,
+  ValidateFrameApiResponse,
 } from "@/types/guided-enrollment.types";
 
 /**
@@ -22,7 +23,7 @@ export const guidedEnrollmentService = {
    */
   async startSession(): Promise<StartSessionApiResponse> {
     const response = await api.post<StartSessionApiResponse>(
-      "/api/enrollment/sessions/start"
+      "/enrollment/sessions/start"
     );
     return response.data;
   },
@@ -43,7 +44,29 @@ export const guidedEnrollmentService = {
     });
 
     const response = await api.post<FrameUploadApiResponse>(
-      `/api/enrollment/sessions/${sessionToken}/frames`,
+      `/enrollment/sessions/${sessionToken}/frames`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  },
+
+  /**
+   * Validate a single frame in real-time.
+   */
+  async validateFrame(
+    sessionToken: string,
+    poseLabel: string,
+    frameBlob: Blob
+  ): Promise<ValidateFrameApiResponse> {
+    const formData = new FormData();
+    formData.append("poseLabel", poseLabel);
+    formData.append("frame", frameBlob, "frame.jpg");
+
+    const response = await api.post<ValidateFrameApiResponse>(
+      `/enrollment/sessions/${sessionToken}/validate-frame`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -59,7 +82,7 @@ export const guidedEnrollmentService = {
     sessionToken: string
   ): Promise<{ success: boolean; data: { status: string } }> {
     const response = await api.post(
-      `/api/enrollment/sessions/${sessionToken}/process`
+      `/enrollment/sessions/${sessionToken}/process`
     );
     return response.data;
   },
@@ -69,7 +92,7 @@ export const guidedEnrollmentService = {
    */
   async getStatus(sessionToken: string): Promise<SessionStatusApiResponse> {
     const response = await api.get<SessionStatusApiResponse>(
-      `/api/enrollment/sessions/${sessionToken}/status`
+      `/enrollment/sessions/${sessionToken}/status`
     );
     return response.data;
   },
@@ -81,7 +104,7 @@ export const guidedEnrollmentService = {
     sessionToken: string
   ): Promise<{ success: boolean }> {
     const response = await api.delete(
-      `/api/enrollment/sessions/${sessionToken}`
+      `/enrollment/sessions/${sessionToken}`
     );
     return response.data;
   },
@@ -90,7 +113,7 @@ export const guidedEnrollmentService = {
    * Get enrollment session history.
    */
   async getHistory(): Promise<{ success: boolean; data: unknown[] }> {
-    const response = await api.get("/api/enrollment/sessions/history");
+    const response = await api.get("/enrollment/sessions/history");
     return response.data;
   },
 };

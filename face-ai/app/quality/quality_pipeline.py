@@ -53,12 +53,20 @@ class QualityReport:
         }
 
 
+# ── Phase 7: Relaxed thresholds for pre-validated frames ──
+# Frames that already passed /face/validate-frame should NOT be
+# aggressively rejected during batch processing.
+PRE_VALIDATED_BLUR_FACTOR = 0.5   # 50% more lenient blur threshold
+PRE_VALIDATED_FACE_SCORE_FACTOR = 0.7  # 30% more lenient face score
+
+
 def run_quality_pipeline(
     image: np.ndarray,
     faces: list,
     blur_threshold: float = DEFAULT_BLUR_THRESHOLD,
     min_face_score: float = MIN_FACE_SCORE,
     min_face_area_ratio: float = MIN_FACE_AREA_RATIO,
+    pre_validated: bool = False,
 ) -> QualityReport:
     """
     Run the full quality pipeline on a decoded image with pre-detected faces.
@@ -71,12 +79,16 @@ def run_quality_pipeline(
         5. Landmark visibility check
         6. Head pose validation (yaw/pitch within range)
 
+    Phase 7: When pre_validated=True, quality thresholds are relaxed
+    to avoid double-filtering frames that already passed validate-frame.
+
     Args:
         image: BGR image as numpy array (already decoded)
         faces: List of InsightFace Face objects (already detected)
         blur_threshold: Minimum Laplacian variance
         min_face_score: Minimum detection confidence
         min_face_area_ratio: Minimum face area / image area
+        pre_validated: If True, use relaxed thresholds (Phase 7)
 
     Returns:
         QualityReport with all metrics and pass/fail result
@@ -85,11 +97,28 @@ def run_quality_pipeline(
     report = QualityReport()
     h, w = image.shape[:2]
 
+    # Phase 7: Relax thresholds for pre-validated frames
+    effective_blur_threshold = blur_threshold
+    effective_min_face_score = min_face_score
+    if pre_validated:
+        effective_blur_threshold = blur_threshold * PRE_VALIDATED_BLUR_FACTOR
+        effective_min_face_score = min_face_score * PRE_VALIDATED_FACE_SCORE_FACTOR
+        logger.debug(
+            "Pre-validated frame: relaxed blur_threshold=%.1f (was %.1f), "
+            "min_face_score=%.3f (was %.3f)",
+            effective_blur_threshold, blur_threshold,
+            effective_min_face_score, min_face_score,
+        )
+
     # Step 1: Blur detection
     report.blur_score = compute_blur_score(image)
-    if report.blur_score < blur_threshold:
+    if report.blur_score < effective_blur_threshold:
         report.rejection_reason = "blur_score_too_low"
         report.processing_time_ms = (time.time() - start) * 1000
+        logger.debug(
+            "Quality reject: blur_score=%.1f < threshold=%.1f (pre_validated=%s)",
+            report.blur_score, effective_blur_threshold, pre_validated,
+        )
         return report
 
     # Step 2: Face count
@@ -97,16 +126,27 @@ def run_quality_pipeline(
     if not count_ok:
         report.rejection_reason = count_reason
         report.processing_time_ms = (time.time() - start) * 1000
+        logger.debug("Quality reject: %s", count_reason)
         return report
 
+    # Sort faces by bounding box area (largest first) to ensure we evaluate the main subject
+    faces = sorted(
+        faces,
+        key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]),
+        reverse=True
+    )
     face = faces[0]
 
     # Step 3: Face score
-    score_ok, score_reason, face_score = validate_face_score(face, min_face_score)
+    score_ok, score_reason, face_score = validate_face_score(face, effective_min_face_score)
     report.face_score = face_score
     if not score_ok:
         report.rejection_reason = score_reason
         report.processing_time_ms = (time.time() - start) * 1000
+        logger.debug(
+            "Quality reject: face_score=%.3f < threshold=%.3f (pre_validated=%s)",
+            face_score, effective_min_face_score, pre_validated,
+        )
         return report
 
     # Step 4: Face size
@@ -115,6 +155,7 @@ def run_quality_pipeline(
     if not size_ok:
         report.rejection_reason = size_reason
         report.processing_time_ms = (time.time() - start) * 1000
+        logger.debug("Quality reject: %s (face_area_ratio=%.4f)", size_reason, area_ratio)
         return report
 
     # Extract bbox
@@ -128,24 +169,41 @@ def run_quality_pipeline(
     if not landmark_ok:
         report.rejection_reason = landmark_reason
         report.processing_time_ms = (time.time() - start) * 1000
+        logger.debug("Quality reject: %s", landmark_reason)
         return report
 
     # Store landmarks
     if face.landmark is not None:
         report.landmarks_5pt = face.landmark.tolist()
 
-    # Step 6: Head pose validation
+    # Step 6: Head pose validation (skip for pre-validated frames that were already pose-checked)
     if face.landmark is not None:
-        pose_ok, pose_reason, pose = validate_head_pose(face.landmark)
-        report.head_pose = pose
-        if not pose_ok:
-            report.rejection_reason = pose_reason
-            report.processing_time_ms = (time.time() - start) * 1000
-            return report
+        if pre_validated:
+            # Phase 7: Skip head pose re-validation for pre-validated frames
+            # The frame already passed pose validation in validate-frame
+            report.head_pose = estimate_head_pose(face.landmark)
+            logger.debug(
+                "Pre-validated frame: skipping pose re-validation, pose=%s",
+                report.head_pose,
+            )
+        else:
+            pose_ok, pose_reason, pose = validate_head_pose(face.landmark)
+            report.head_pose = pose
+            if not pose_ok:
+                report.rejection_reason = pose_reason
+                report.processing_time_ms = (time.time() - start) * 1000
+                logger.debug("Quality reject: %s", pose_reason)
+                return report
 
     # All checks passed
     report.passed = True
     report.processing_time_ms = (time.time() - start) * 1000
+    logger.debug(
+        "Quality passed: blur=%.1f, face_score=%.3f, area_ratio=%.4f, "
+        "pre_validated=%s, time=%.1fms",
+        report.blur_score, report.face_score, report.face_area_ratio,
+        pre_validated, report.processing_time_ms,
+    )
     return report
 
 

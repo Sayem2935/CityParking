@@ -472,9 +472,431 @@
   justify-content: center;
 }
 
+/* ── Phase 3: Frame Counter Overlay ─────────────────────── */
+
+.ge-frame-counter-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.ge-frame-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 12px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.ge-frame-counter-label {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.ge-frame-counter-value {
+  font-weight: 700;
+  color: #a78bfa;
+  font-size: 0.95rem;
+}
+
+/* ── Phase 4: Timeout Indicator ─────────────────────────── */
+
+.ge-timeout-indicator {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.ge-timeout-warning {
+  background: rgba(239, 68, 68, 0.8);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: white;
+  animation: ge-pulse-warning 0.8s ease-in-out infinite;
+}
+
+@keyframes ge-pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Live Feedback Container ───────────────────────────── */
+
+.ge-live-feedback-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.ge-live-feedback {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: color 0.2s ease;
+}
+
+.ge-feedback-good {
+  color: #34d399;
+}
+
+.ge-feedback-warn {
+  color: #fbbf24;
+}
+
+.ge-feedback-error {
+  color: #f87171;
+}
+
+.ge-validation-reasons {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ge-reason-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  text-transform: capitalize;
+}
+
+/* ── Phase 2: Live Metrics Panel ────────────────────────── */
+
+.ge-live-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ge-metric-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+}
+
+.ge-metric-label {
+  width: 36px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-align: right;
+}
+
+.ge-metric-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ge-metric-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.ge-metric-good {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.ge-metric-bad {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.ge-metric-value {
+  width: 42px;
+  text-align: right;
+  color: #cbd5e1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ge-pose-detected {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.ge-pose-detected strong {
+  color: #a78bfa;
+}
+
+/* ── Phase 3: Pose Status Chip (with count) ────────────── */
+
+.ge-pose-status-chip {
+  width: auto;
+  min-width: 40px;
+  height: auto;
+  min-height: 40px;
+  padding: 0.35rem 0.5rem;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ge-pose-chip-icon-small {
+  font-size: 0.9rem;
+}
+
+.ge-pose-chip-count {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ge-pose-done .ge-pose-chip-count {
+  color: #34d399;
+}
+
+.ge-pose-current .ge-pose-chip-count {
+  color: #a78bfa;
+}
+
+.ge-pose-skipped {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  opacity: 0.7;
+}
+
+.ge-pose-skipped .ge-pose-chip-count {
+  color: #f87171;
+}
+
+/* ── Skip Message ──────────────────────────────────────── */
+
+.ge-skip-message {
+  font-size: 0.85rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  animation: ge-fade-in 0.3s ease-out;
+}
+
+/* ── Phase 8: Quality Report ───────────────────────────── */
+
+.ge-quality-report {
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.ge-quality-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.ge-quality-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ge-quality-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.ge-quality-pose-icon {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.ge-quality-pose-name {
+  width: 56px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.ge-quality-bar-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ge-quality-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.ge-quality-high {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.ge-quality-med {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.ge-quality-low {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.ge-quality-pct {
+  width: 48px;
+  text-align: right;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ge-quality-frames {
+  width: 56px;
+  text-align: right;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.ge-skipped-summary {
+  font-size: 0.8rem;
+  color: #fbbf24;
+  margin: 0.75rem 0;
+  text-align: center;
+}
+
+/* ── Phase 5: Failure Pose Report ──────────────────────── */
+
+.ge-failure-pose-report {
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.ge-failure-pose-report h4 {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.ge-failure-pose-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ge-failure-pose-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  padding: 0.3rem 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.ge-validation-errors-list {
+  margin: 0.75rem 0;
+  text-align: left;
+}
+
+.ge-validation-error-item {
+  font-size: 0.8rem;
+  color: #fca5a5;
+  padding: 0.25rem 0;
+  text-transform: capitalize;
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 640px) {
+  .ge-live-metrics {
+    gap: 0.25rem;
+    padding: 0.35rem;
+  }
+
+  .ge-metric-bar {
+    font-size: 0.65rem;
+  }
+
+  .ge-metric-label {
+    width: 28px;
+  }
+
+  .ge-metric-value {
+    width: 36px;
+    font-size: 0.65rem;
+  }
+
+  .ge-frame-counter {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .ge-timeout-indicator {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .ge-quality-row {
+    font-size: 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .ge-quality-pose-name {
+    width: 44px;
+    font-size: 0.75rem;
+  }
+
+  .ge-quality-pct {
+    width: 36px;
+    font-size: 0.75rem;
+  }
+
+  .ge-quality-frames {
+    width: 44px;
+    font-size: 0.65rem;
+  }
+
+  .ge-pose-status-chip {
+    min-width: 36px;
+    padding: 0.25rem 0.35rem;
+  }
   .ge-container {
     padding: 1rem;
   }

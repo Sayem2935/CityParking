@@ -24,6 +24,10 @@ public class SessionStatusResponse {
     private Boolean livenessPassed;
     private Double livenessScore;
     private Map<String, Boolean> poseCompletion;
+    private Map<String, Double> poseQualityScores;
+    private Double overallQualityScore;
+    private String failureReason;
+    private java.util.List<String> validationErrors;
     private Double sessionDurationSeconds;
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;

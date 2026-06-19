@@ -134,6 +134,18 @@ class BatchEnrollResponse(BaseModel):
 # ── Quality Check Models ─────────────────────────────────────
 
 
+class ValidateFrameResponse(BaseModel):
+    """Response for /face/validate-frame endpoint."""
+    
+    success: bool
+    valid: bool = Field(description="Whether the frame passes all checks for the specified pose")
+    feedback: str = Field(description="Real-time feedback string for the user")
+    reasons: list[str] = Field(default_factory=list, description="List of specific failure reasons")
+    pose_metrics: dict = Field(default_factory=dict, description="Yaw, pitch, roll in degrees")
+    quality_metrics: dict = Field(default_factory=dict, description="Blur, area ratio, confidence")
+    bbox: list[int] = Field(default_factory=list, description="Bounding box")
+    processing_time_ms: float = Field(default=0.0)
+
 class QualityCheckResponse(BaseModel):
     """Response for /face/quality-check endpoint."""
 

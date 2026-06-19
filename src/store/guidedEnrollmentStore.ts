@@ -6,7 +6,6 @@ import type {
   PoseLabel,
   PoseProgress,
   CapturedFrame,
-  ALL_POSES,
 } from "@/types/guided-enrollment.types";
 import { guidedEnrollmentService } from "@/services/guided-enrollment.service";
 
@@ -35,6 +34,10 @@ const INITIAL_SESSION: SessionState = {
   livenessScore: null,
   sessionDurationSeconds: null,
   error: null,
+  poseQualityScores: {},
+  overallQualityScore: undefined,
+  failureReason: undefined,
+  validationErrors: [],
 };
 
 const POLL_INTERVAL_MS = 2000;
@@ -135,6 +138,49 @@ export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
       const { session } = get();
       if (!session.sessionToken) return;
 
+      // FIX 2: Safety validation — verify all poses are complete before processing
+      const incompletePoses = Object.entries(session.poseProgress)
+        .filter(([, progress]) => !progress.complete)
+        .map(([pose]) => pose);
+
+      if (incompletePoses.length > 0) {
+        console.error(
+          `[STORE] triggerProcessing BLOCKED — incomplete poses: ${incompletePoses.join(", ")}`
+        );
+        set({
+          session: {
+            ...session,
+            status: "failed",
+            error: `Cannot process enrollment. Missing poses: ${incompletePoses.join(", ")}`,
+            failureReason: `Not all poses were completed before processing. Missing: ${incompletePoses.join(", ")}`,
+          },
+        });
+        return;
+      }
+
+      // FIX 2: Verify minimum total accepted frames exist (at least 1 per pose = 7)
+      const totalAccepted = Object.values(session.poseProgress)
+        .reduce((sum, p) => sum + (p.framesAccepted || 0), 0);
+
+      if (totalAccepted < 7) {
+        console.error(
+          `[STORE] triggerProcessing BLOCKED — only ${totalAccepted} total accepted frames (need >= 7)`
+        );
+        set({
+          session: {
+            ...session,
+            status: "failed",
+            error: `Insufficient frames for processing: ${totalAccepted} accepted (minimum 7 required)`,
+            failureReason: `Only ${totalAccepted} frames were accepted across all poses. Need at least 7.`,
+          },
+        });
+        return;
+      }
+
+      console.log(
+        `[STORE] triggerProcessing — all poses complete, ${totalAccepted} frames accepted. Starting processing.`
+      );
+
       set({
         session: { ...session, status: "processing", error: null },
       });
@@ -207,6 +253,10 @@ export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
               livenessPassed: data.livenessPassed,
               livenessScore: data.livenessScore,
               sessionDurationSeconds: data.sessionDurationSeconds,
+              poseQualityScores: data.poseQualityScores || {},
+              overallQualityScore: data.overallQualityScore,
+              failureReason: data.failureReason,
+              validationErrors: data.validationErrors || [],
             },
           });
         }
@@ -242,6 +292,21 @@ export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
           },
         });
       }
+    },
+
+    markPoseComplete: (poseLabel: PoseLabel, framesAccepted: number) => {
+      const { session } = get();
+      const newPoseProgress = { ...session.poseProgress };
+      newPoseProgress[poseLabel] = {
+        complete: true,
+        framesAccepted,
+      };
+      set({
+        session: {
+          ...session,
+          poseProgress: newPoseProgress,
+        },
+      });
     },
 
     getCurrentPose: (): PoseConfig | null => {

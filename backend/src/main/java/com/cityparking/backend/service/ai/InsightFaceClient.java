@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import com.cityparking.backend.dto.enrollment.ValidateFrameResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,38 @@ public class InsightFaceClient {
         } catch (Exception e) {
             log.error("Batch enrollment call failed: {}", e.getMessage(), e);
             throw new RuntimeException("Batch enrollment failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Real-time pose validation for a single frame.
+     */
+    public ValidateFrameResponse validateFrame(byte[] imageBytes, String poseLabel) {
+        try {
+            String url = faceAiBaseUrl + "/face/validate-frame";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("image", new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    return "frame.jpg";
+                }
+            });
+            body.add("pose_label", poseLabel);
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<ValidateFrameResponse> response = restTemplate.exchange(
+                    url, HttpMethod.POST, requestEntity, ValidateFrameResponse.class
+            );
+
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Validate frame call failed: {}", e.getMessage(), e);
+            throw new RuntimeException("Validate frame failed: " + e.getMessage(), e);
         }
     }
 

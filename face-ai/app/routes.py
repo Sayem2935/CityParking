@@ -22,6 +22,7 @@ from app.models import (
     CompareResponse,
     HealthResponse,
     ErrorResponse,
+    ValidateFrameResponse,
     BatchEnrollResponse,
     BatchEnrollEmbedding,
     RejectedFrame,
@@ -54,6 +55,76 @@ def _get_service() -> FaceService:
             detail="Face AI service is not ready. Models are still loading.",
         )
     return face_service
+
+
+# ── POST /face/validate-frame ────────────────────────────────
+
+@router.post(
+    "/face/validate-frame",
+    response_model=ValidateFrameResponse,
+    summary="Validate a single frame for real-time guidance",
+    description="Analyzes a single frame for a specific pose and returns feedback",
+)
+async def validate_frame(
+    image: UploadFile = File(..., description="Frame to validate"),
+    pose_label: str = Form(..., description="Target pose (e.g., center, left, right)")
+):
+    svc = _get_service()
+    start_time = time.time()
+
+    image_bytes = await image.read()
+    if len(image_bytes) == 0:
+        raise HTTPException(status_code=400, detail="Empty image file")
+
+    # Fast validation
+    from app.quality.quality_pipeline import run_quality_pipeline_from_bytes
+    from app.quality.pose_validator import validate_frame_pose
+
+    # Just detect faces, don't strictly extract embeddings yet
+    faces = svc.detect_faces(image_bytes)
+    
+    if len(faces) == 0:
+        return ValidateFrameResponse(
+            success=True,
+            valid=False,
+            feedback="No face detected",
+            reasons=["no_face"],
+            pose_metrics={},
+            quality_metrics={},
+            bbox=[],
+            processing_time_ms=(time.time() - start_time) * 1000
+        )
+
+    # Use quality pipeline for basic metrics
+    report = run_quality_pipeline_from_bytes(image_bytes, faces)
+
+    # Pose specific validation
+    val_result = validate_frame_pose(
+        pose_label=pose_label.lower(),
+        head_pose=report.head_pose,
+        blur_score=report.blur_score,
+        face_score=report.face_score,
+        face_area_ratio=report.face_area_ratio,
+        bbox=report.bbox
+    )
+
+    elapsed_ms = (time.time() - start_time) * 1000
+
+    return ValidateFrameResponse(
+        success=True,
+        valid=val_result["valid"],
+        feedback=val_result["feedback"],
+        reasons=val_result["reasons"],
+        pose_metrics=report.head_pose,
+        quality_metrics={
+            "blur_score": report.blur_score,
+            "face_score": report.face_score,
+            "face_area_ratio": report.face_area_ratio
+        },
+        bbox=report.bbox,
+        processing_time_ms=elapsed_ms
+    )
+
 
 
 # ── POST /face/enroll ────────────────────────────────────────
@@ -377,7 +448,7 @@ async def batch_enroll(
         ]
 
         return BatchEnrollResponse(
-            success=result.embeddings_after_dedup > 0,
+            success=result.embeddings_extracted > 0,
             total_frames=result.total_frames,
             quality_passed=result.quality_passed,
             quality_failed=result.quality_failed,

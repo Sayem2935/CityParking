@@ -8,6 +8,7 @@ import com.cityparking.backend.entity.FaceEnrollment;
 import com.cityparking.backend.repository.EnrollmentFrameRepository;
 import com.cityparking.backend.repository.FaceEmbeddingRepository;
 import com.cityparking.backend.repository.FaceEnrollmentRepository;
+import com.cityparking.backend.repository.UserRepository;
 import com.cityparking.backend.service.EnrollmentSessionService;
 import com.cityparking.backend.service.ai.InsightFaceClient;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,18 +51,21 @@ public class EnrollmentSessionController {
     private final EnrollmentFrameRepository frameRepository;
     private final FaceEmbeddingRepository embeddingRepository;
     private final FaceEnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
 
     public EnrollmentSessionController(
             EnrollmentSessionService sessionService,
             InsightFaceClient insightFaceClient,
             EnrollmentFrameRepository frameRepository,
             FaceEmbeddingRepository embeddingRepository,
-            FaceEnrollmentRepository enrollmentRepository) {
+            FaceEnrollmentRepository enrollmentRepository,
+            UserRepository userRepository) {
         this.sessionService = sessionService;
         this.insightFaceClient = insightFaceClient;
         this.frameRepository = frameRepository;
         this.embeddingRepository = embeddingRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -166,6 +170,82 @@ public class EnrollmentSessionController {
     }
 
     /**
+     * POST /api/enrollment/sessions/{token}/validate-frame
+     * Validate a single frame in real-time.
+     */
+    @PostMapping("/{token}/validate-frame")
+    public ResponseEntity<Map<String, Object>> validateFrame(
+            @PathVariable String token,
+            @RequestParam("frame") MultipartFile frame,
+            @RequestParam("poseLabel") String poseLabel,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        EnrollmentSession session = sessionService.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Session not found: " + token));
+
+        if (!session.getUserId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "error", "Session does not belong to user"));
+        }
+
+        try {
+            byte[] bytes = frame.getBytes();
+            if (bytes.length == 0) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Empty frame"));
+            }
+
+            // Call FastAPI to validate the frame
+            com.cityparking.backend.dto.enrollment.ValidateFrameResponse valResponse = 
+                insightFaceClient.validateFrame(bytes, poseLabel);
+
+            // If valid, save it
+            if (valResponse.isValid()) {
+                // How many valid frames do we currently have for this pose?
+                long currentValidFrames = frameRepository.findBySessionIdAndPoseLabel(session.getId(), poseLabel).stream()
+                        .filter(f -> Boolean.TRUE.equals(f.getPassedQuality()))
+                        .count();
+
+                // Save frame
+                String framePath = saveFrameToTemp(session.getId(), (int) currentValidFrames, poseLabel, bytes);
+                EnrollmentFrame validFrame = EnrollmentFrame.builder()
+                        .session(session)
+                        .frameIndex((int) currentValidFrames)
+                        .poseLabel(poseLabel)
+                        .passedQuality(true)
+                        .framePath(framePath)
+                        .capturedAt(LocalDateTime.now())
+                        .build();
+                frameRepository.save(validFrame);
+                
+                sessionService.recordFramesReceived(token, 1);
+                
+                long updatedFrameCount = currentValidFrames + 1;
+                
+                // Bug 3 fix: Use MIN_FRAMES_PER_POSE (4) consistently
+                valResponse.setAcceptedFrames((int) updatedFrameCount);
+                valResponse.setTargetFrames(4);  // matches frontend TARGET_FRAMES_PER_POSE
+                if (updatedFrameCount >= 4) {
+                    valResponse.setPoseComplete(true);
+                }
+            } else {
+                // Even for invalid frames, report current accepted count
+                long currentValidFrames = frameRepository.findBySessionIdAndPoseLabel(session.getId(), poseLabel).stream()
+                        .filter(f -> Boolean.TRUE.equals(f.getPassedQuality()))
+                        .count();
+                valResponse.setAcceptedFrames((int) currentValidFrames);
+                valResponse.setTargetFrames(4);
+            }
+
+            return ResponseEntity.ok(Map.of("success", true, "data", valResponse));
+        } catch (IOException e) {
+            log.error("Failed to read frame: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "error", "IO Error"));
+        }
+    }
+
+    /**
      * POST /api/enrollment/sessions/{token}/process
      * Trigger async processing of the session's frames.
      */
@@ -184,8 +264,9 @@ public class EnrollmentSessionController {
                     .body(Map.of("success", false, "error", "Session does not belong to user"));
         }
 
-        // Trigger async processing
-        processSessionAsync(session);
+        // Run heavy processing asynchronously using CompletableFuture
+        // to avoid Spring AOP self-invocation bypass issues
+        java.util.concurrent.CompletableFuture.runAsync(() -> processSessionAsync(session));
 
         return ResponseEntity.accepted().body(Map.of(
                 "success", true,
@@ -287,7 +368,16 @@ public class EnrollmentSessionController {
             );
 
             if (!result.isSuccess() || result.getEmbeddings() == null || result.getEmbeddings().isEmpty()) {
-                sessionService.failSession(token, "Batch enrollment returned no embeddings");
+                String detail = String.format(
+                    "Batch enrollment returned no embeddings. success=%s, totalFrames=%d, qualityPassed=%d, " +
+                    "qualityFailed=%d, embeddingsExtracted=%d, embeddingsAfterDedup=%d, embeddingsListSize=%d",
+                    result.isSuccess(), result.getTotalFrames(), result.getQualityPassed(),
+                    result.getQualityFailed(), result.getEmbeddingsExtracted(),
+                    result.getEmbeddingsAfterDedup(),
+                    result.getEmbeddings() != null ? result.getEmbeddings().size() : 0
+                );
+                log.error(detail);
+                sessionService.failSession(token, detail);
                 return;
             }
 
@@ -318,6 +408,7 @@ public class EnrollmentSessionController {
                 faceEmbedding.setSession(session);
                 faceEmbedding.setEmbedding(embeddingStr);
                 faceEmbedding.setModelName("w600k_r50");
+                faceEmbedding.setModelPack("buffalo_l"); // Fix: explicitly set modelPack
                 faceEmbedding.setFaceScore(batchEmb.getFaceScore());
                 faceEmbedding.setStatus("ACTIVE");
                 faceEmbedding.setPoseLabel(batchEmb.getPoseLabel());
@@ -366,8 +457,10 @@ public class EnrollmentSessionController {
     // ── Helpers ───────────────────────────────────────────────
 
     private Long getUserId(Authentication authentication) {
-        // Extract user ID from authentication — adapt to your auth implementation
-        return Long.parseLong(authentication.getName());
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .map(com.cityparking.backend.entity.User::getId)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + email));
     }
 
     private String saveFrameToTemp(Long sessionId, int frameIndex, String poseLabel, byte[] data) throws IOException {

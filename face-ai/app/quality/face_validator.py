@@ -15,29 +15,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Thresholds
-MIN_FACE_SCORE = 0.70
-MIN_FACE_AREA_RATIO = 0.03  # Face bbox must be ≥ 3% of image area
-MAX_YAW = 60.0              # degrees — reject extreme side views
-MAX_PITCH = 45.0            # degrees — reject extreme up/down
+MIN_FACE_SCORE = 0.50
+MIN_FACE_AREA_RATIO = 0.02  # Face bbox must be ≥ 2% of image area
+MAX_YAW = 85.0              # degrees — relaxed for "turn left/right" poses
+MAX_PITCH = 60.0            # degrees — relaxed for "look up/down" poses
 
 
 def validate_face_count(faces: list, expected: int = 1) -> tuple[bool, str]:
     """
-    Validate that exactly the expected number of faces are detected.
-
-    Args:
-        faces: List of InsightFace Face objects
-        expected: Expected face count (default: 1)
-
-    Returns:
-        (passed, reason)
+    Validate that at least one face is detected.
+    (If multiple faces, we will later pick the largest one)
     """
     count = len(faces)
     if count == 0:
         return False, "no_face_detected"
-    if count > expected:
-        return False, f"multiple_faces_detected_{count}"
-    return True, "ok"
+    # We no longer reject multiple faces here, we will just warn and pick the largest later
+    return True, f"multiple_faces_detected_{count}" if count > 1 else "ok"
 
 
 def validate_face_score(face, min_score: float = MIN_FACE_SCORE) -> tuple[bool, str, float]:

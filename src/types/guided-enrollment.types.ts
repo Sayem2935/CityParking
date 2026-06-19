@@ -71,6 +71,10 @@ export interface SessionState {
   livenessPassed: boolean | null;
   livenessScore: number | null;
   sessionDurationSeconds: number | null;
+  poseQualityScores?: Record<string, number>;
+  overallQualityScore?: number;
+  failureReason?: string;
+  validationErrors?: string[];
   error: string | null;
 }
 
@@ -110,6 +114,26 @@ export interface FrameUploadApiResponse {
   };
 }
 
+export interface ValidateFrameApiResponse {
+  success: boolean;
+  data: {
+    valid: boolean;
+    feedback: string;
+    reasons: string[];
+    poseDetected: string;
+    yaw: number;
+    pitch: number;
+    blurScore: number;
+    faceScore: number;
+    faceAreaRatio: number;
+    poseMetrics: Record<string, number>;
+    qualityMetrics: Record<string, number>;
+    poseComplete: boolean;
+    acceptedFrames: number;
+    targetFrames: number;
+  };
+}
+
 export interface SessionStatusApiResponse {
   success: boolean;
   data: {
@@ -122,6 +146,10 @@ export interface SessionStatusApiResponse {
     livenessPassed: boolean | null;
     livenessScore: number | null;
     poseCompletion: Record<string, boolean>;
+    poseQualityScores?: Record<string, number>;
+    overallQualityScore?: number;
+    failureReason?: string;
+    validationErrors?: string[];
     sessionDurationSeconds: number | null;
     startedAt: string | null;
     completedAt: string | null;
@@ -143,6 +171,7 @@ export interface GuidedEnrollmentStore {
 
   // Pose navigation
   advancePose: () => void;
+  markPoseComplete: (poseLabel: PoseLabel, framesAccepted: number) => void;
   getCurrentPose: () => PoseConfig | null;
   isLastPose: () => boolean;
   isAllPosesComplete: () => boolean;
