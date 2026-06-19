@@ -141,6 +141,7 @@ class ValidateFrameResponse(BaseModel):
     valid: bool = Field(description="Whether the frame passes all checks for the specified pose")
     feedback: str = Field(description="Real-time feedback string for the user")
     reasons: list[str] = Field(default_factory=list, description="List of specific failure reasons")
+    pose_detected: str = Field(default="unknown", description="Pose inferred from yaw/pitch metrics")
     pose_metrics: dict = Field(default_factory=dict, description="Yaw, pitch, roll in degrees")
     quality_metrics: dict = Field(default_factory=dict, description="Blur, area ratio, confidence")
     bbox: list[int] = Field(default_factory=list, description="Bounding box")

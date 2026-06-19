@@ -18,6 +18,7 @@ from app.quality.face_validator import (
     validate_landmarks_visible,
     validate_head_pose,
     estimate_head_pose,
+    get_landmarks_5pt,
     MIN_FACE_SCORE,
     MIN_FACE_AREA_RATIO,
 )
@@ -171,23 +172,23 @@ def run_quality_pipeline(
         report.processing_time_ms = (time.time() - start) * 1000
         logger.debug("Quality reject: %s", landmark_reason)
         return report
-
-    # Store landmarks
-    if face.landmark is not None:
-        report.landmarks_5pt = face.landmark.tolist()
+    # Store landmarks (InsightFace exposes 5-point landmarks via .kps)
+    landmarks_5pt = get_landmarks_5pt(face)
+    if landmarks_5pt is not None:
+        report.landmarks_5pt = landmarks_5pt.tolist()
 
     # Step 6: Head pose validation (skip for pre-validated frames that were already pose-checked)
-    if face.landmark is not None:
+    if landmarks_5pt is not None:
         if pre_validated:
             # Phase 7: Skip head pose re-validation for pre-validated frames
             # The frame already passed pose validation in validate-frame
-            report.head_pose = estimate_head_pose(face.landmark)
+            report.head_pose = estimate_head_pose(landmarks_5pt)
             logger.debug(
                 "Pre-validated frame: skipping pose re-validation, pose=%s",
                 report.head_pose,
             )
         else:
-            pose_ok, pose_reason, pose = validate_head_pose(face.landmark)
+            pose_ok, pose_reason, pose = validate_head_pose(landmarks_5pt)
             report.head_pose = pose
             if not pose_ok:
                 report.rejection_reason = pose_reason

@@ -149,7 +149,16 @@ public class InsightFaceClient {
                     url, HttpMethod.POST, requestEntity, ValidateFrameResponse.class
             );
 
-            return response.getBody();
+            ValidateFrameResponse valBody = response.getBody();
+            log.debug("[validate-frame] deserialized poseMetrics={}, qualityMetrics={}",
+                    valBody != null ? valBody.getPoseMetrics() : null,
+                    valBody != null ? valBody.getQualityMetrics() : null);
+
+            if (valBody == null) {
+                throw new RuntimeException("Null response from validate-frame");
+            }
+
+            return valBody;
         } catch (Exception e) {
             log.error("Validate frame call failed: {}", e.getMessage(), e);
             throw new RuntimeException("Validate frame failed: " + e.getMessage(), e);

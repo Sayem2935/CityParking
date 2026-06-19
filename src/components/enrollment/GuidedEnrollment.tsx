@@ -208,6 +208,10 @@ export const GuidedEnrollment: React.FC = () => {
                 blob
               );
               
+              if (import.meta.env.DEV) {
+                console.debug("validate-frame response", res.data);
+              }
+
               if (res.success) {
                 setFeedback(res.data.feedback);
                 setValidationReasons(res.data.reasons);
@@ -502,7 +506,19 @@ export const GuidedEnrollment: React.FC = () => {
             {!isCapturing && countdown === null && (
               <button
                 className="ge-btn ge-btn-primary"
-                onClick={() => setCountdown(3)}
+                onClick={() => {
+                  // "Retake" must fully reset the enrollment (currentPoseIndex=0,
+                  // CENTER active, all pose counts cleared) rather than re-capturing
+                  // only the current (last) pose. "Begin Capture" just starts the
+                  // current pose's countdown.
+                  if (session.poseProgress[poseKey]?.complete) {
+                    stopCapture();
+                    setSkippedPoses(new Set());
+                    void startSession();
+                  } else {
+                    setCountdown(3);
+                  }
+                }}
               >
                 {session.poseProgress[poseKey]?.complete
                   ? "Retake"

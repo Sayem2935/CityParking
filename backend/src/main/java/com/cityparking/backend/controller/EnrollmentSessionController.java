@@ -1,14 +1,12 @@
 package com.cityparking.backend.controller;
 
 import com.cityparking.backend.dto.enrollment.*;
-import com.cityparking.backend.entity.EnrollmentFrame;
-import com.cityparking.backend.entity.EnrollmentSession;
-import com.cityparking.backend.entity.FaceEmbedding;
-import com.cityparking.backend.entity.FaceEnrollment;
+import com.cityparking.backend.entity.*;
 import com.cityparking.backend.repository.EnrollmentFrameRepository;
 import com.cityparking.backend.repository.FaceEmbeddingRepository;
 import com.cityparking.backend.repository.FaceEnrollmentRepository;
 import com.cityparking.backend.repository.UserRepository;
+import com.cityparking.backend.service.EnrollmentProcessingService;
 import com.cityparking.backend.service.EnrollmentSessionService;
 import com.cityparking.backend.service.ai.InsightFaceClient;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +45,7 @@ public class EnrollmentSessionController {
     private static final Logger log = LoggerFactory.getLogger(EnrollmentSessionController.class);
 
     private final EnrollmentSessionService sessionService;
+    private final EnrollmentProcessingService processingService;
     private final InsightFaceClient insightFaceClient;
     private final EnrollmentFrameRepository frameRepository;
     private final FaceEmbeddingRepository embeddingRepository;
@@ -55,12 +54,14 @@ public class EnrollmentSessionController {
 
     public EnrollmentSessionController(
             EnrollmentSessionService sessionService,
+            EnrollmentProcessingService processingService,
             InsightFaceClient insightFaceClient,
             EnrollmentFrameRepository frameRepository,
             FaceEmbeddingRepository embeddingRepository,
             FaceEnrollmentRepository enrollmentRepository,
             UserRepository userRepository) {
         this.sessionService = sessionService;
+        this.processingService = processingService;
         this.insightFaceClient = insightFaceClient;
         this.frameRepository = frameRepository;
         this.embeddingRepository = embeddingRepository;
@@ -199,6 +200,9 @@ public class EnrollmentSessionController {
             com.cityparking.backend.dto.enrollment.ValidateFrameResponse valResponse = 
                 insightFaceClient.validateFrame(bytes, poseLabel);
 
+            log.debug("[validate-frame] poseLabel={}, poseMetrics={}, qualityMetrics={}",
+                    poseLabel, valResponse.getPoseMetrics(), valResponse.getQualityMetrics());
+
             // If valid, save it
             if (valResponse.isValid()) {
                 // How many valid frames do we currently have for this pose?
@@ -265,8 +269,14 @@ public class EnrollmentSessionController {
         }
 
         // Run heavy processing asynchronously using CompletableFuture
-        // to avoid Spring AOP self-invocation bypass issues
-        java.util.concurrent.CompletableFuture.runAsync(() -> processSessionAsync(session));
+        // Pass the session ID and token to avoid lazy-loading issues in the async thread
+        Long sessionId = session.getId();
+        String sessionToken = session.getSessionToken();
+        Long sessionUserId = session.getUserId();
+        java.util.concurrent.CompletableFuture.runAsync(
+                () -> processSessionAsync(sessionId, sessionToken, sessionUserId),
+                java.util.concurrent.Executors.newSingleThreadExecutor()
+        );
 
         return ResponseEntity.accepted().body(Map.of(
                 "success", true,
@@ -326,21 +336,30 @@ public class EnrollmentSessionController {
 
     // ── Async Processing ─────────────────────────────────────
 
-    @Async
-    protected void processSessionAsync(EnrollmentSession session) {
-        String token = session.getSessionToken();
-        log.info("Starting async processing for session {}", token);
+    /**
+     * Async processing method. Runs in a CompletableFuture thread with NO Hibernate session.
+     *
+     * Frame data (paths and pose labels) are read as plain values.
+     * The FastAPI call is made outside any transaction.
+     * All Hibernate entity operations are delegated to EnrollmentProcessingService
+     * which runs inside a single @Transactional boundary, preventing
+     * detached-entity and lazy-initialization errors.
+     */
+    private void processSessionAsync(Long sessionId, String token, Long userId) {
+        log.info("[processing] Starting async processing for session {}", token);
 
+        List<EnrollmentFrame> frames = null;
         try {
-            // Load all frames for this session
-            List<EnrollmentFrame> frames = frameRepository.findBySessionIdOrderByFrameIndex(session.getId());
+            // Load frames using repository (each repo call opens/closes its own short transaction).
+            // We only need the framePath and poseLabel as plain strings.
+            frames = frameRepository.findBySessionIdOrderByFrameIndex(sessionId);
 
             if (frames.isEmpty()) {
                 sessionService.failSession(token, "No frames to process");
                 return;
             }
 
-            // Read frame bytes and collect pose labels
+            // Read frame bytes from disk and collect pose labels
             List<byte[]> frameBytes = new ArrayList<>();
             List<String> poseLabels = new ArrayList<>();
 
@@ -362,9 +381,14 @@ public class EnrollmentSessionController {
                 return;
             }
 
-            // Call FastAPI batch enrollment
+            log.info("[processing] userId={}, frameBytesLoaded={}, poseLabels={}", userId, frameBytes.size(), poseLabels);
+
+            // Mark session as PROCESSING (via @Transactional service method)
+            sessionService.markProcessing(token);
+
+            // Call FastAPI batch enrollment (outside any Hibernate transaction)
             InsightFaceClient.BatchEnrollResult result = insightFaceClient.batchEnroll(
-                    frameBytes, poseLabels, session.getUserId().intValue()
+                    frameBytes, poseLabels, userId.intValue()
             );
 
             if (!result.isSuccess() || result.getEmbeddings() == null || result.getEmbeddings().isEmpty()) {
@@ -381,71 +405,14 @@ public class EnrollmentSessionController {
                 return;
             }
 
-            // Supersede previous embeddings for this user
-            embeddingRepository.supersedePreviousEmbeddings(session.getUserId());
+            // Delegate all Hibernate entity operations to the @Transactional service.
+            // This re-loads User, Session, and Enrollment within a single open transaction,
+            // preventing detached-entity and lazy-initialization errors.
+            processingService.storeEnrollmentResults(token, userId, result);
 
-            // Get or create enrollment record
-            FaceEnrollment enrollment = enrollmentRepository
-                    .findFirstByUserIdOrderByCreatedAtDesc(session.getUserId())
-                    .orElseGet(() -> {
-                        FaceEnrollment newEnrollment = new FaceEnrollment();
-                        newEnrollment.setUser(session.getUser());
-                        newEnrollment.setStatus(FaceEnrollment.EnrollmentStatus.PROCESSING);
-                        newEnrollment.setProvider("insightface");
-                        return enrollmentRepository.save(newEnrollment);
-                    });
+            log.info("[processing] Session {} completed successfully. Embeddings: {}", token, result.getEmbeddingsAfterDedup());
 
-            // Store each embedding
-            for (InsightFaceClient.BatchEmbedding batchEmb : result.getEmbeddings()) {
-                // Convert List<Double> to float array string
-                String embeddingStr = batchEmb.getEmbedding().stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(",", "[", "]"));
-
-                FaceEmbedding faceEmbedding = new FaceEmbedding();
-                faceEmbedding.setUserId(session.getUserId());
-                faceEmbedding.setEnrollment(enrollment);
-                faceEmbedding.setSession(session);
-                faceEmbedding.setEmbedding(embeddingStr);
-                faceEmbedding.setModelName("w600k_r50");
-                faceEmbedding.setModelPack("buffalo_l"); // Fix: explicitly set modelPack
-                faceEmbedding.setFaceScore(batchEmb.getFaceScore());
-                faceEmbedding.setStatus("ACTIVE");
-                faceEmbedding.setPoseLabel(batchEmb.getPoseLabel());
-
-                // Set head pose if available
-                if (batchEmb.getHeadPose() != null) {
-                    faceEmbedding.setYaw(batchEmb.getHeadPose().getOrDefault("yaw", 0.0));
-                    faceEmbedding.setPitch(batchEmb.getHeadPose().getOrDefault("pitch", 0.0));
-                    faceEmbedding.setRoll(batchEmb.getHeadPose().getOrDefault("roll", 0.0));
-                }
-
-                // Set bbox
-                if (batchEmb.getBbox() != null && batchEmb.getBbox().size() == 4) {
-                    faceEmbedding.setBboxX(batchEmb.getBbox().get(0));
-                    faceEmbedding.setBboxY(batchEmb.getBbox().get(1));
-                    faceEmbedding.setBboxW(batchEmb.getBbox().get(2));
-                    faceEmbedding.setBboxH(batchEmb.getBbox().get(3));
-                }
-
-                embeddingRepository.save(faceEmbedding);
-            }
-
-            // Update enrollment record
-            enrollment.setStatus(FaceEnrollment.EnrollmentStatus.COMPLETED);
-            enrollmentRepository.save(enrollment);
-
-            // Complete session
-            sessionService.completeSession(
-                    token,
-                    result.getQualityPassed(),
-                    result.getEmbeddingsExtracted(),
-                    result.getEmbeddingsAfterDedup(),
-                    null, // Liveness processed separately
-                    null
-            );
-
-            // Cleanup temp frame files
+            // Cleanup temp frame files (plain I/O, no Hibernate)
             cleanupFrameFiles(frames);
 
         } catch (Exception e) {

@@ -95,7 +95,15 @@ async def validate_frame(
             processing_time_ms=(time.time() - start_time) * 1000
         )
 
-    # Use quality pipeline for basic metrics
+    # InsightFace exposes 5-point landmarks via .kps in the FaceAnalysis output.
+    _f0 = faces[0]
+    logger.debug(
+        "[validate-frame] face attrs: has_kps=%s, kps_shape=%s, has_landmark=%s",
+        getattr(_f0, "kps", None) is not None,
+        getattr(getattr(_f0, "kps", None), "shape", None),
+        getattr(_f0, "landmark", None) is not None,
+    )
+
     report = run_quality_pipeline_from_bytes(image_bytes, faces)
 
     # Pose specific validation
@@ -110,11 +118,21 @@ async def validate_frame(
 
     elapsed_ms = (time.time() - start_time) * 1000
 
+    # Keep pose metrics available in debug logs for enrollment incident traces.
+    _yaw = report.head_pose.get("yaw")
+    _pitch = report.head_pose.get("pitch")
+    logger.debug(
+        f"[validate-frame] pose_label={pose_label} yaw={_yaw}, pitch={_pitch}, "
+        f"pose_detected={val_result.get('poseDetected')}, valid={val_result['valid']}, "
+        f"head_pose={report.head_pose}"
+    )
+
     return ValidateFrameResponse(
         success=True,
         valid=val_result["valid"],
         feedback=val_result["feedback"],
         reasons=val_result["reasons"],
+        pose_detected=val_result.get("poseDetected", "unknown"),
         pose_metrics=report.head_pose,
         quality_metrics={
             "blur_score": report.blur_score,
@@ -287,8 +305,11 @@ async def detect_faces(
         face_w = bbox[2] - bbox[0]
         face_h = bbox[3] - bbox[1]
         landmarks = []
-        if face.landmark is not None:
-            landmarks = face.landmark.tolist()
+        _kps = getattr(face, "kps", None)
+        if _kps is None:
+            _kps = getattr(face, "landmark", None)
+        if _kps is not None:
+            landmarks = _kps.tolist()
 
         detections.append(
             FaceDetection(
@@ -618,4 +639,3 @@ async def compare_gallery(request: GalleryCompareRequest):
         threshold=result["threshold"],
         processing_time_ms=result["processing_time_ms"],
     )
-

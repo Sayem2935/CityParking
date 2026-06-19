@@ -21,6 +21,23 @@ MAX_YAW = 85.0              # degrees — relaxed for "turn left/right" poses
 MAX_PITCH = 60.0            # degrees — relaxed for "look up/down" poses
 
 
+def get_landmarks_5pt(face) -> "np.ndarray | None":
+    """
+    Return the 5-point facial landmarks for an InsightFace Face object.
+
+    InsightFace's FaceAnalysis pipeline stores the 5-point landmarks on the
+    `kps` attribute, NOT `landmark`. Older/other code paths referenced
+    `face.landmark`, which is always None on these objects, causing the
+    landmark/head-pose checks to be skipped and yaw/pitch to stay 0.0.
+
+    This helper reads `kps` first and falls back to `landmark` for safety.
+    """
+    kps = getattr(face, "kps", None)
+    if kps is None:
+        kps = getattr(face, "landmark", None)
+    return kps
+
+
 def validate_face_count(faces: list, expected: int = 1) -> tuple[bool, str]:
     """
     Validate that at least one face is detected.
@@ -88,17 +105,18 @@ def validate_landmarks_visible(
     Validate all 5 facial landmarks are within frame boundaries.
 
     Args:
-        face: InsightFace Face object with landmark attribute
+        face: InsightFace Face object (landmarks read from .kps)
         image_height: Image height in pixels
         image_width: Image width in pixels
 
     Returns:
         (passed, reason)
     """
-    if face.landmark is None:
+    landmarks = get_landmarks_5pt(face)
+    if landmarks is None:
         return False, "no_landmarks"
 
-    landmarks = face.landmark  # shape: (5, 2)
+    # shape: (5, 2)
     for i, (x, y) in enumerate(landmarks):
         if x < 0 or x >= image_width or y < 0 or y >= image_height:
             return False, f"landmark_{i}_out_of_frame"

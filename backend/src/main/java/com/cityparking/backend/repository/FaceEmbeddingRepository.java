@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, Lo
      * Supersede (deactivate) all active embeddings for a user.
      * Called before inserting a new enrollment embedding.
      */
+    @Transactional
     @Modifying
     @Query("UPDATE FaceEmbedding fe SET fe.status = 'SUPERSEDED' WHERE fe.userId = :userId AND fe.status = 'ACTIVE'")
     int supersedePreviousEmbeddings(@Param("userId") Long userId);
@@ -66,6 +68,7 @@ public interface FaceEmbeddingRepository extends JpaRepository<FaceEmbedding, Lo
     /**
      * Supersede embeddings from a specific session.
      */
+    @Transactional
     @Modifying
     @Query("UPDATE FaceEmbedding fe SET fe.status = 'SUPERSEDED' WHERE fe.session.id = :sessionId AND fe.status = 'ACTIVE'")
     int supersedeSessionEmbeddings(@Param("sessionId") Long sessionId);

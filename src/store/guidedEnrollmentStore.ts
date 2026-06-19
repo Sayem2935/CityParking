@@ -9,7 +9,10 @@ import type {
 } from "@/types/guided-enrollment.types";
 import { guidedEnrollmentService } from "@/services/guided-enrollment.service";
 
-const INITIAL_POSE_PROGRESS: Record<PoseLabel, PoseProgress> = {
+// Build a fresh pose-progress map every time so no nested object references
+// are shared between sessions. Sharing caused stale `complete: true` flags to
+// leak across "new" sessions on Retake/reset.
+const createInitialPoseProgress = (): Record<PoseLabel, PoseProgress> => ({
   center: { complete: false, framesAccepted: 0 },
   left: { complete: false, framesAccepted: 0 },
   right: { complete: false, framesAccepted: 0 },
@@ -17,15 +20,16 @@ const INITIAL_POSE_PROGRESS: Record<PoseLabel, PoseProgress> = {
   down: { complete: false, framesAccepted: 0 },
   blink: { complete: false, framesAccepted: 0 },
   smile: { complete: false, framesAccepted: 0 },
-};
+});
 
-const INITIAL_SESSION: SessionState = {
+// Factory returning a brand-new, fully-reset session object (deep, not shared).
+const createInitialSession = (): SessionState => ({
   sessionToken: null,
   status: "idle",
   poses: [],
   captureConfig: null,
   currentPoseIndex: 0,
-  poseProgress: { ...INITIAL_POSE_PROGRESS },
+  poseProgress: createInitialPoseProgress(),
   totalFramesCaptured: 0,
   qualityFramesAccepted: 0,
   embeddingsGenerated: 0,
@@ -38,19 +42,19 @@ const INITIAL_SESSION: SessionState = {
   overallQualityScore: undefined,
   failureReason: undefined,
   validationErrors: [],
-};
+});
 
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLL_ATTEMPTS = 30; // 60 seconds max
 
 export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
   (set, get) => ({
-    session: { ...INITIAL_SESSION },
+    session: createInitialSession(),
 
     startSession: async () => {
       set({
         session: {
-          ...INITIAL_SESSION,
+          ...createInitialSession(),
           status: "initializing",
         },
       });
@@ -61,7 +65,7 @@ export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
         if (response.success) {
           set({
             session: {
-              ...INITIAL_SESSION,
+              ...createInitialSession(),
               sessionToken: response.data.sessionToken,
               status: "capturing",
               poses: response.data.poses,
@@ -275,11 +279,11 @@ export const useGuidedEnrollmentStore = create<GuidedEnrollmentStore>(
         // Ignore cancel errors
       }
 
-      set({ session: { ...INITIAL_SESSION } });
+      set({ session: createInitialSession() });
     },
 
     resetSession: () => {
-      set({ session: { ...INITIAL_SESSION } });
+      set({ session: createInitialSession() });
     },
 
     advancePose: () => {

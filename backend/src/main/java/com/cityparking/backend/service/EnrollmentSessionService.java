@@ -131,6 +131,20 @@ public class EnrollmentSessionService {
     }
 
     /**
+     * Update session status to PROCESSING when async processing begins.
+     */
+    @Transactional
+    public void markProcessing(String sessionToken) {
+        EnrollmentSession session = sessionRepository.findBySessionToken(sessionToken)
+                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionToken));
+
+        if (session.getStatus() == EnrollmentSession.SessionStatus.CAPTURING) {
+            session.setStatus(EnrollmentSession.SessionStatus.PROCESSING);
+            sessionRepository.save(session);
+        }
+    }
+
+    /**
      * Update session status to CAPTURING when frames start arriving.
      */
     @Transactional
