@@ -59,8 +59,8 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    /** In-memory cache: userId → normalized 512-d embedding vector. */
-    private final ConcurrentHashMap<Long, float[]> embeddingCache = new ConcurrentHashMap<>();
+    /** In-memory cache: userId → list of normalized 512-d embedding vectors (gallery). */
+    private final ConcurrentHashMap<Long, List<float[]>> embeddingCache = new ConcurrentHashMap<>();
 
     public InsightFaceFaceRecognitionService(
             InsightFaceProperties properties,
@@ -129,32 +129,46 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
             // Extract probe embedding from the verification image
             float[] probeEmbedding = extractEmbeddingFromFastApi(imageData);
 
-            // Load the target embedding from cache
-            float[] targetEmbedding = embeddingCache.get(userId);
-            if (targetEmbedding == null) {
+            // Load the target gallery from cache
+            List<float[]> gallery = embeddingCache.get(userId);
+            if (gallery == null || gallery.isEmpty()) {
                 // Try loading from DB (cache miss)
-                Optional<FaceEmbedding> dbEmbedding =
-                        embeddingRepository.findByUserIdAndStatus(userId, "ACTIVE");
-                if (dbEmbedding.isPresent()) {
-                    targetEmbedding = dbEmbedding.get().getEmbeddingVector();
-                    embeddingCache.put(userId, targetEmbedding);
-                } else {
+                List<FaceEmbedding> dbEmbeddings =
+                        embeddingRepository.findAllByUserIdAndStatus(userId, "ACTIVE");
+                if (!dbEmbeddings.isEmpty()) {
+                    gallery = new java.util.ArrayList<>();
+                    for (FaceEmbedding fe : dbEmbeddings) {
+                        float[] vec = fe.getEmbeddingVector();
+                        if (vec.length == 512) gallery.add(vec);
+                    }
+                    if (!gallery.isEmpty()) {
+                        embeddingCache.put(userId, gallery);
+                    }
+                }
+                if (gallery == null || gallery.isEmpty()) {
                     log.warn("No active embedding found for userId: {}", userId);
                     return new FaceVerificationResult(false, userId, 0.0, "No face enrollment found for user");
                 }
             }
 
-            // Compute cosine similarity
-            double similarity = cosineSimilarity(probeEmbedding, targetEmbedding);
-            boolean verified = similarity >= properties.getSimilarityThreshold();
+            // Compute best cosine similarity across all gallery embeddings
+            double bestSimilarity = -1.0;
+            for (float[] targetEmbedding : gallery) {
+                double similarity = cosineSimilarity(probeEmbedding, targetEmbedding);
+                log.debug("  gallery embedding similarity for userId {}: {}", userId, similarity);
+                if (similarity > bestSimilarity) {
+                    bestSimilarity = similarity;
+                }
+            }
+            boolean verified = bestSimilarity >= properties.getSimilarityThreshold();
 
-            log.info("Face verification for userId {}: similarity={}, verified={}",
-                    userId, similarity, verified);
+            log.info("Face verification for userId {}: bestSimilarity={} (from {} gallery embeddings), verified={}",
+                    userId, bestSimilarity, gallery.size(), verified);
 
             return new FaceVerificationResult(
                     verified,
                     userId,
-                    similarity,
+                    bestSimilarity,
                     verified ? "Face verified successfully" : "Face does not match enrollment"
             );
 
@@ -172,17 +186,19 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
             // Extract probe embedding
             float[] probeEmbedding = extractEmbeddingFromFastApi(imageData);
 
-            // Brute-force search against all cached embeddings
+            // Brute-force search against all cached embeddings (gallery per user)
             Long bestUserId = null;
             double bestSimilarity = -1.0;
             String bestFaceId = null;
 
-            for (Map.Entry<Long, float[]> entry : embeddingCache.entrySet()) {
-                double similarity = cosineSimilarity(probeEmbedding, entry.getValue());
-                if (similarity > bestSimilarity) {
-                    bestSimilarity = similarity;
-                    bestUserId = entry.getKey();
-                    bestFaceId = "insightface-" + entry.getKey();
+            for (Map.Entry<Long, List<float[]>> entry : embeddingCache.entrySet()) {
+                for (float[] galleryVec : entry.getValue()) {
+                    double similarity = cosineSimilarity(probeEmbedding, galleryVec);
+                    if (similarity > bestSimilarity) {
+                        bestSimilarity = similarity;
+                        bestUserId = entry.getKey();
+                        bestFaceId = "insightface-" + entry.getKey();
+                    }
                 }
             }
 
@@ -233,7 +249,7 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
 
     @Override
     public FaceVerifyResult verifyFace(byte[] imageBytes) {
-        log.info("verifyFace(byte[]) called — performing 1:N search");
+        log.info("verifyFace(byte[]) called — performing 1:N search against {} users", embeddingCache.size());
 
         try {
             float[] probeEmbedding = extractEmbeddingFromFastApi(imageBytes);
@@ -241,17 +257,25 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
             Long bestUserId = null;
             float bestSimilarity = -1.0f;
             String bestFaceId = null;
+            int totalComparisons = 0;
 
-            for (Map.Entry<Long, float[]> entry : embeddingCache.entrySet()) {
-                float similarity = (float) cosineSimilarity(probeEmbedding, entry.getValue());
-                if (similarity > bestSimilarity) {
-                    bestSimilarity = similarity;
-                    bestUserId = entry.getKey();
-                    bestFaceId = "insightface-" + entry.getKey();
+            for (Map.Entry<Long, List<float[]>> entry : embeddingCache.entrySet()) {
+                for (float[] galleryVec : entry.getValue()) {
+                    float similarity = (float) cosineSimilarity(probeEmbedding, galleryVec);
+                    totalComparisons++;
+                    log.debug("  userId={}, embedding similarity={}", entry.getKey(), similarity);
+                    if (similarity > bestSimilarity) {
+                        bestSimilarity = similarity;
+                        bestUserId = entry.getKey();
+                        bestFaceId = "insightface-" + entry.getKey();
+                    }
                 }
             }
 
             boolean matched = bestSimilarity >= properties.getSimilarityThreshold();
+
+            log.info("verifyFace result: bestSimilarity={}, bestUserId={}, matched={}, totalComparisons={}",
+                    bestSimilarity, bestUserId, matched, totalComparisons);
 
             if (matched) {
                 log.info("Face verified. userId: {}, similarity: {}", bestUserId, bestSimilarity);
@@ -400,8 +424,10 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
 
         embeddingRepository.save(faceEmbedding);
 
-        // Update in-memory cache
-        embeddingCache.put(userId, embedding);
+        // Update in-memory cache (gallery as single-element list)
+        List<float[]> gallery = new java.util.ArrayList<>();
+        gallery.add(embedding);
+        embeddingCache.put(userId, gallery);
 
         log.info("Embedding stored for userId: {}, dimensions: {}", userId, embedding.length);
     }
@@ -410,19 +436,31 @@ public class InsightFaceFaceRecognitionService implements FaceRecognitionService
 
     /**
      * Load all active embeddings into the in-memory cache.
-     * Called at startup and periodically refreshed.
+     * Called at startup, after enrollment, and periodically refreshed.
+     * Stores ALL active embeddings per user (gallery) for multi-embedding matching.
      */
     public void loadEmbeddingCache() {
         try {
             List<FaceEmbedding> activeEmbeddings = embeddingRepository.findAllByStatus("ACTIVE");
             embeddingCache.clear();
+
+            // Group embeddings by userId into a gallery
+            java.util.Map<Long, List<float[]>> grouped = new java.util.HashMap<>();
             for (FaceEmbedding fe : activeEmbeddings) {
                 float[] vector = fe.getEmbeddingVector();
                 if (vector.length == 512) {
-                    embeddingCache.put(fe.getUserId(), vector);
+                    grouped.computeIfAbsent(fe.getUserId(), k -> new java.util.ArrayList<>()).add(vector);
                 }
             }
-            log.info("Embedding cache loaded: {} active embeddings", embeddingCache.size());
+
+            embeddingCache.putAll(grouped);
+
+            int totalEmbeddings = 0;
+            for (List<float[]> gallery : grouped.values()) {
+                totalEmbeddings += gallery.size();
+            }
+            log.info("Embedding cache loaded: {} users, {} total active embeddings",
+                    grouped.size(), totalEmbeddings);
         } catch (Exception e) {
             log.error("Failed to load embedding cache: {}", e.getMessage(), e);
         }

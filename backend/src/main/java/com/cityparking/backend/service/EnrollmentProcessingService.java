@@ -3,8 +3,11 @@ package com.cityparking.backend.service;
 import com.cityparking.backend.entity.*;
 import com.cityparking.backend.repository.*;
 import com.cityparking.backend.service.ai.InsightFaceClient;
+import com.cityparking.backend.service.ai.InsightFaceFaceRecognitionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,15 @@ public class EnrollmentProcessingService {
     private final FaceEnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final EnrollmentSessionService sessionService;
+
+    /**
+     * Optional dependency — only present when ai.provider.face=insightface.
+     * Injected via @Lazy to avoid circular dependency and to handle
+     * the conditional bean gracefully.
+     */
+    @Autowired(required = false)
+    @Lazy
+    private InsightFaceFaceRecognitionService insightFaceService;
 
     public EnrollmentProcessingService(
             EnrollmentSessionRepository sessionRepository,
@@ -136,5 +148,18 @@ public class EnrollmentProcessingService {
 
         log.info("[processing] Session {} completed. Embeddings stored: {}",
                 sessionToken, result.getEmbeddingsAfterDedup());
+
+        // CRITICAL: Refresh the in-memory embedding cache so verification
+        // can see the newly enrolled embeddings immediately.
+        // Without this, verification would miss the new embeddings until
+        // the next periodic refresh (every 5 minutes).
+        if (insightFaceService != null) {
+            try {
+                insightFaceService.loadEmbeddingCache();
+                log.info("[processing] Embedding cache refreshed after enrollment for user {}", userId);
+            } catch (Exception e) {
+                log.warn("[processing] Failed to refresh embedding cache after enrollment: {}", e.getMessage());
+            }
+        }
     }
 }
