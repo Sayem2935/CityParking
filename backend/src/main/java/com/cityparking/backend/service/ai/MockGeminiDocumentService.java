@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "ai.provider", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "ai.provider.document", havingValue = "mock", matchIfMissing = true)
 public class MockGeminiDocumentService implements DocumentExtractionService {
 
     @Override

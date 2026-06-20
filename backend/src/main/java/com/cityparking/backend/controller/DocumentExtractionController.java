@@ -31,7 +31,7 @@ public class DocumentExtractionController {
     @PostMapping("/extract")
     public ResponseEntity<ApiResponse<DocumentExtractionResult>> extractDocument(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("image") MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest()

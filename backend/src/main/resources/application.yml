@@ -63,6 +63,7 @@ ai:
   provider:
     face: ${AI_PROVIDER_FACE:insightface}  # mock | aws | insightface  ← ACTIVATED
     vision: ${AI_PROVIDER_VISION:mock}   # mock | gemini
+    document: ${AI_PROVIDER_DOCUMENT:external}  # mock | external  ← ParkFlow OCR API
 # ── Gemini AI API (replaces FastAPI AI Service) ──────────────
 gemini:
   api-key: ${GEMINI_API_KEY:}

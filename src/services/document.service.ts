@@ -5,7 +5,7 @@ import { apiClient } from './api';
 export const documentService = {
   async extractDocument(file: File): Promise<ApiResponse<DocumentExtractionResult>> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
 
     const response = await apiClient.post<ApiResponse<DocumentExtractionResult>>(
       '/document/extract',
