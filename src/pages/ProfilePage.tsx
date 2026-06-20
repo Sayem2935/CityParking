@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore, useUserStore } from '../store';
+import { useAuthStore, useUserStore, useFaceEnrollmentStore } from '../store';
 import { Button, ErrorMessage } from '../components';
 import { VerificationBadge } from '../components/widgets';
 import {
@@ -19,6 +19,7 @@ import {
 const ProfilePage: React.FC = () => {
   const { user: authUser } = useAuthStore();
   const { profile, isLoading, error, fetchProfile } = useUserStore();
+  const { uploadStatus } = useFaceEnrollmentStore();
 
   useEffect(() => {
     fetchProfile();
@@ -136,7 +137,7 @@ const ProfilePage: React.FC = () => {
                 <p className="text-xs text-zinc-500">Face recognition verification</p>
               </div>
             </div>
-            <VerificationBadge status="pending" label="Not Registered" />
+            <VerificationBadge status={uploadStatus === 'success' ? 'verified' : 'pending'} label={uploadStatus === 'success' ? 'Registered' : 'Not Registered'} />
           </div>
           <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-800/50 border border-zinc-800">
             <div className="flex items-center gap-3">
@@ -148,7 +149,7 @@ const ProfilePage: React.FC = () => {
                 <p className="text-xs text-zinc-500">University ID verification</p>
               </div>
             </div>
-            <VerificationBadge status="pending" label="Not Uploaded" />
+            <VerificationBadge status={user?.studentId ? 'verified' : 'pending'} label={user?.studentId ? 'Verified' : 'Not Uploaded'} />
           </div>
         </div>
       </div>
