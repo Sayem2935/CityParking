@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
@@ -14,8 +14,8 @@ import {
   Clock,
   AlertCircle,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
+import { useNotificationStore } from '../store/notificationStore';
 
 /* ── Helpers ── */
 
@@ -102,30 +102,42 @@ const DashboardPage: React.FC = () => {
   const totalSteps = 3;
   const isFullySetup = completedSteps === totalSteps;
 
-  /* ── Notifications ── */
-  const notifications = useMemo(() => {
-    const list: { id: string; title: string; desc: string; icon: React.ElementType; color: string }[] = [];
-
-    if (isUniversityVerified) {
-      list.push({ id: 'uni', title: 'University ID Verified', desc: 'Your student ID has been confirmed.', icon: GraduationCap, color: 'text-emerald-400' });
-    }
-    if (primaryVehicle) {
-      list.push({
-        id: 'vehicle',
-        title: 'Vehicle Registered',
-        desc: `${primaryVehicle.vehicleBrand ?? ''} ${primaryVehicle.vehicleModel ?? ''} (${primaryVehicle.vehicleNumber})`.trim(),
-        icon: Car,
-        color: 'text-blue-400',
-      });
-    }
-    if (isFullySetup) {
-      list.push({ id: 'active', title: 'Account Active', desc: 'You\'re all set for campus parking.', icon: Sparkles, color: 'text-emerald-400' });
-    }
-    return list;
-  }, [isUniversityVerified, primaryVehicle, isFullySetup]);
-
   /* ── Loading ── */
   const isPageLoading = profileLoading || vehiclesLoading;
+
+  /* ── Sync Notifications to Store ── */
+  const { addNotification, notifications: storeNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    if (isPageLoading) return;
+
+    const hasNotification = (type: string) =>
+      storeNotifications.some((n) => n.type === type);
+
+    if (isUniversityVerified && !hasNotification('university_verified')) {
+      addNotification({
+        type: 'university_verified',
+        title: 'University ID Verified',
+        description: 'Your student ID has been confirmed.',
+      });
+    }
+
+    if (primaryVehicle && !hasNotification('vehicle_registered')) {
+      addNotification({
+        type: 'vehicle_registered',
+        title: 'Vehicle Registered',
+        description: `${primaryVehicle.vehicleBrand ?? ''} ${primaryVehicle.vehicleModel ?? ''} (${primaryVehicle.vehicleNumber})`.trim(),
+      });
+    }
+
+    if (isFullySetup && !hasNotification('account_active')) {
+      addNotification({
+        type: 'account_active',
+        title: 'Account Active',
+        description: 'You\'re all set for campus parking.',
+      });
+    }
+  }, [isUniversityVerified, primaryVehicle, isFullySetup, isPageLoading]); // eslint-disable-line react-hooks/exhaustive-deps
   if (isPageLoading && !profile) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fade-in">
@@ -391,33 +403,6 @@ const DashboardPage: React.FC = () => {
         )}
       </section>
 
-      {/* ── 6. NOTIFICATIONS ── */}
-      <section className="space-y-3 animate-fade-in" style={{ animationDelay: '250ms' }}>
-        <h2 className="section-title">Notifications</h2>
-
-        {notifications.length > 0 ? (
-          <div className="space-y-2">
-            {notifications.map((n) => {
-              const Icon = n.icon;
-              return (
-                <div key={n.id} className="card p-4 flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 shrink-0">
-                    <Icon className={`w-5 h-5 ${n.color}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${n.color}`}>{n.title}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{n.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="card p-6 text-center">
-            <p className="text-sm text-zinc-500">No notifications yet</p>
-          </div>
-        )}
-      </section>
     </div>
   );
 };

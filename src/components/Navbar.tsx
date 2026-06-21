@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store';
-import { Bell, LogOut, User, ChevronDown, ParkingSquare } from 'lucide-react';
+import { LogOut, User, ChevronDown, ParkingSquare } from 'lucide-react';
+import NotificationDropdown from './notifications/NotificationDropdown';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -30,13 +31,7 @@ const Navbar: React.FC = () => {
         {/* Right — Actions */}
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <button
-            className="relative flex items-center justify-center w-10 h-10 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition-colors min-touch"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-[#09090b]" />
-          </button>
+          <NotificationDropdown />
 
           {/* Profile dropdown */}
           <div className="relative">
