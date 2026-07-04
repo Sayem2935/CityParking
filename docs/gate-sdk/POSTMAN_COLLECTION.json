@@ -1,0 +1,501 @@
+{
+  "info": {
+    "name": "CityParking Gate SDK",
+    "description": "Postman collection for the Raspberry Pi gate device API endpoints.\n\nIncludes authentication, gate verification, face verification, and enrollment status endpoints.\n\nUsage:\n1. Set the {{base_url}} variable to your backend URL\n2. Run the 'Login' request first to obtain a JWT token\n3. The token is automatically saved to the {{jwt_token}} variable\n4. All other requests use {{jwt_token}} in the Authorization header",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "cityparking-gate-sdk"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://cityparking-api.onrender.com/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_image_path",
+      "value": "/path/to/test_face.jpg",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Device authentication endpoints",
+      "item": [
+        {
+          "name": "Login (Device)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gate-entrance-A@cityparking.edu\",\n  \"password\": \"your-password-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate the gate device and obtain a JWT token.\n\nThe token should be copied to the {{jwt_token}} collection variable for use in subsequent requests.\n\nResponse includes: token, type (Bearer), user id, email, name, and role."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "    console.log('JWT token saved to collection variable');",
+                  "}",
+                  "",
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.token).to.be.a('string');",
+                  "    pm.expect(jsonData.data.type).to.eql('Bearer');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Login — Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gate-entrance-A@cityparking.edu\",\n  \"password\": \"wrong-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Test login with invalid credentials. Expected: 401 Unauthorized."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Gate Verification",
+      "description": "Primary gate verification endpoint. Sends a face image and receives an access decision.\n\nThis is the main endpoint used by the Raspberry Pi gate controller.\n\nEndpoint: POST /api/gate/verify\nUnderlying: POST /api/access-verification/verify\n\nThe backend performs:\n1. Face detection and quality check\n2. Face embedding extraction (via FastAPI + InsightFace)\n3. Face matching against enrolled users\n4. Vehicle registration lookup\n5. Access decision (ALLOW or DENY)",
+      "item": [
+        {
+          "name": "Verify Access (ALLOW scenario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}",
+                  "description": "JPEG or PNG face image captured from the gate camera. Max 10 MB. Recommended: 640x480 or 1280x720."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/gate/verify",
+              "host": ["{{base_url}}"],
+              "path": ["gate", "verify"]
+            },
+            "description": "Send a face image for access verification.\n\nMultipart form-data with a single 'image' field containing a JPEG or PNG file.\n\nThe backend will:\n1. Detect and validate the face in the image\n2. Extract a 512-dimensional ArcFace embedding\n3. Compare against all enrolled face embeddings\n4. If match found, check vehicle registration\n5. Return ALLOW or DENY decision\n\nExpected response (ALLOW):\n{\n  \"success\": true,\n  \"data\": {\n    \"decision\": \"ALLOW\",\n    \"reason\": \"VERIFIED\",\n    \"confidence\": 0.87,\n    \"user\": { ... },\n    \"vehicle\": { ... }\n  }\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Access — No Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/gate/verify",
+              "host": ["{{base_url}}"],
+              "path": ["gate", "verify"]
+            },
+            "description": "Test gate verification without authentication. Expected: 401 Unauthorized."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Access — Expired Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnYXRlLWRldmljZUBjaXR5cGFya2luZy5lZHVpIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjE3MDAwODY0MDB9.EXPIRED_SIGNATURE",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/gate/verify",
+              "host": ["{{base_url}}"],
+              "path": ["gate", "verify"]
+            },
+            "description": "Test gate verification with an expired JWT token. Expected: 401 Unauthorized."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Face Verification (Standalone)",
+      "description": "Standalone face verification endpoint. Only performs face matching without access decision logic.\n\nEndpoint: POST /api/face-verification/verify\n\nUse this for testing face recognition independently of the full access verification flow.",
+      "item": [
+        {
+          "name": "Verify Face — Match Found",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/face-verification/verify",
+              "host": ["{{base_url}}"],
+              "path": ["face-verification", "verify"]
+            },
+            "description": "Verify a face image against enrolled users.\n\nReturns:\n- faceMatched: boolean\n- confidence: float (0.0 — 1.0)\n- matchedUserId: number\n- matchedUserName: string\n\nNote: This endpoint only checks face match. Use /gate/verify for the full access decision."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Face — No Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "/path/to/unknown_face.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/face-verification/verify",
+              "host": ["{{base_url}}"],
+              "path": ["face-verification", "verify"]
+            },
+            "description": "Test face verification with an unknown face. Expected: faceMatched = false."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Access Verification",
+      "description": "Full access verification endpoint (direct backend path).\n\nEndpoint: POST /api/access-verification/verify\n\nThis is the underlying endpoint that /gate/verify maps to. Use this for direct backend testing.\n\nPerforms the complete verification pipeline:\n1. Face detection and quality validation\n2. ArcFace embedding extraction via InsightFace (FastAPI)\n3. Cosine similarity comparison against enrolled embeddings\n4. Vehicle registration check for matched user\n5. Access decision generation\n6. Access log entry creation",
+      "item": [
+        {
+          "name": "Access Verify — Full Flow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}",
+                  "description": "Face image for access verification"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/access-verification/verify",
+              "host": ["{{base_url}}"],
+              "path": ["access-verification", "verify"]
+            },
+            "description": "Full access verification with face image.\n\nResponse fields:\n- accessGranted: boolean\n- userId: number (matched user ID)\n- userName: string\n- faceMatched: boolean\n- faceConfidence: float\n- vehicleFound: boolean\n- vehiclePlate: string\n- reason: string (VERIFIED, NO_MATCH, NO_FACE, etc.)\n- decision: string (ALLOW, DENY)\n- timestamp: ISO datetime\n- accessLogId: number"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Face Enrollment Status",
+      "description": "Check the face enrollment status for the authenticated user.\n\nEndpoint: GET /api/face-enrollment/status\n\nUseful for verifying that a user has completed enrollment before expecting successful verification.",
+      "item": [
+        {
+          "name": "Get Enrollment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/face-enrollment/status",
+              "host": ["{{base_url}}"],
+              "path": ["face-enrollment", "status"]
+            },
+            "description": "Get the face enrollment status for the authenticated user.\n\nResponse includes:\n- enrolled: boolean\n- status: string (NOT_STARTED, PENDING, PROCESSING, COMPLETED, FAILED)\n- imageCount: number\n- enrolledAt: ISO datetime or null"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "description": "User profile endpoints. Useful for verifying the authenticated device account.",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Get the profile of the currently authenticated user (device account).\n\nUseful for verifying that the gate device is authenticated correctly."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Plate Verification",
+      "description": "License plate verification endpoint. Optional — for gates with ANPR cameras.\n\nEndpoint: POST /api/plate-verification/verify",
+      "item": [
+        {
+          "name": "Verify Plate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "/path/to/plate_image.jpg",
+                  "description": "Image containing a vehicle license plate"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/plate-verification/verify",
+              "host": ["{{base_url}}"],
+              "path": ["plate-verification", "verify"]
+            },
+            "description": "Verify a license plate image.\n\nThis endpoint is optional for the gate device. The primary verification path uses face recognition.\n\nReturns plate detection results and verification status."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health & Diagnostics",
+      "description": "Endpoints for health checking and diagnostics.",
+      "item": [
+        {
+          "name": "Login Health Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Use the login endpoint as a health check. A 400 or 401 response indicates the server is running. A connection timeout or refusal indicates the server is down.\n\nExpected: 400 (Bad Request) or 401 (Unauthorized) — both confirm the server is alive."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "description": "Test various error conditions to verify the gate controller handles them correctly.",
+      "item": [
+        {
+          "name": "Missing Image Field",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/gate/verify",
+              "host": ["{{base_url}}"],
+              "path": ["gate", "verify"]
+            },
+            "description": "Send a verification request without an image. Expected: 400 Bad Request."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Token Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer not-a-valid-jwt-token",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{test_image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/gate/verify",
+              "host": ["{{base_url}}"],
+              "path": ["gate", "verify"]
+            },
+            "description": "Send a request with a malformed JWT. Expected: 401 Unauthorized."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

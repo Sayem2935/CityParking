@@ -1,0 +1,467 @@
+# CityParking Gate SDK — API Reference
+
+Base URL: `https://<your-server>/api`
+
+All endpoints (except login) require the `Authorization: Bearer <token>` header.
+
+All responses use the `ApiResponse<T>` wrapper:
+
+```json
+{
+  "success": true|false,
+  "message": "Human-readable message",
+  "data": { ... },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+---
+
+## 1. Device Login
+
+Authenticate the Raspberry Pi and receive a JWT token.
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `POST` |
+| **URL** | `/api/auth/login` |
+| **Content-Type** | `application/json` |
+| **Authentication** | None (public endpoint) |
+
+### Body
+
+```json
+{
+  "email": "gate-device@cityparking.edu",
+  "password": "device-password"
+}
+```
+
+### Success Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnYXRlLWRldmljZUBjaXR5cGFya2luZy5lZHUiLCJpYXQiOjE3MjAwMDAwMDAsImV4cCI6MTcyMDA4NjQwMH0.signature",
+    "type": "Bearer",
+    "id": 15,
+    "email": "gate-device@cityparking.edu",
+    "firstName": "Gate",
+    "lastName": "Device",
+    "role": "USER"
+  },
+  "timestamp": "2026-07-04T08:00:00"
+}
+```
+
+### Failure Responses
+
+**401 Unauthorized — Invalid credentials:**
+
+```json
+{
+  "success": false,
+  "message": "Invalid email or password",
+  "data": null,
+  "timestamp": "2026-07-04T08:00:00"
+}
+```
+
+### Timeout Recommendation
+
+| Parameter | Value |
+|-----------|-------|
+| Connect timeout | 10 seconds |
+| Read timeout | 15 seconds |
+
+### curl Example
+
+```bash
+curl -X POST https://cityparking-api.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"gate-device@cityparking.edu","password":"device-password"}'
+```
+
+---
+
+## 2. Gate Verification (Primary Endpoint)
+
+Send a face image for verification and access decision.
+This is the **main endpoint** the Raspberry Pi calls for every vehicle.
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `POST` |
+| **URL** | `/api/gate/verify` |
+| **Content-Type** | `multipart/form-data` |
+| **Authentication** | `Authorization: Bearer <token>` |
+
+### Multipart Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `image` | File | Yes | JPEG or PNG face image. Max 10 MB. |
+
+### Processing Steps (Server-Side)
+
+1. Extract 512-d ArcFace embedding via FastAPI/InsightFace
+2. Compare against all enrolled user embeddings in PostgreSQL
+3. If match found (cosine similarity ≥ 0.45): look up user's registered vehicles
+4. If vehicle found: return `ALLOW`; otherwise return `DENY`
+5. Log access attempt in `access_logs` table
+
+### Success Response — `200 OK` — Access Granted
+
+```json
+{
+  "success": true,
+  "message": "Access granted",
+  "data": {
+    "decision": "ALLOW",
+    "reason": "VERIFIED",
+    "confidence": 0.87,
+    "timestamp": "2026-07-04T08:30:00",
+    "user": {
+      "id": 42,
+      "name": "Alice Johnson",
+      "studentId": "STU20240042",
+      "department": "Computer Science",
+      "email": "alice@university.edu"
+    },
+    "vehicle": {
+      "registered": true,
+      "plate": "ABC-1234",
+      "type": "SEDAN",
+      "make": "Toyota",
+      "model": "Camry"
+    },
+    "gate": {
+      "action": "OPEN",
+      "relayDurationMs": 5000
+    }
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### Success Response — `200 OK` — Access Denied (face not matched)
+
+```json
+{
+  "success": true,
+  "message": "Access denied",
+  "data": {
+    "decision": "DENY",
+    "reason": "FACE_NOT_MATCHED",
+    "confidence": 0.23,
+    "timestamp": "2026-07-04T08:30:15",
+    "user": null,
+    "vehicle": null,
+    "gate": {
+      "action": "CLOSED",
+      "relayDurationMs": 0
+    }
+  },
+  "timestamp": "2026-07-04T08:30:15"
+}
+```
+
+### Failure Responses
+
+**400 Bad Request — No image provided:**
+
+```json
+{
+  "success": false,
+  "message": "Image is required",
+  "data": null,
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+**401 Unauthorized — Token expired or missing:**
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized: Authentication required",
+  "data": null,
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+**500 Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "message": "Access verification failed: Connection refused to AI service",
+  "data": null,
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+**503 Service Unavailable — Face AI service down:**
+
+```json
+{
+  "success": false,
+  "message": "Service temporarily unavailable",
+  "data": null,
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Request processed (check `data.decision`) |
+| 400 | Missing or invalid image |
+| 401 | Missing/expired/invalid JWT token |
+| 403 | Authenticated but insufficient permissions |
+| 429 | Rate limit exceeded |
+| 500 | Internal server error |
+| 503 | AI service unavailable |
+
+### Timeout Recommendation
+
+| Parameter | Value |
+|-----------|-------|
+| Connect timeout | 10 seconds |
+| Read timeout | 30 seconds |
+
+Face verification involves AI inference — allow up to 30 seconds.
+
+### curl Example
+
+```bash
+curl -X POST https://cityparking-api.onrender.com/api/gate/verify \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+  -F "image=@/tmp/capture.jpg"
+```
+
+---
+
+## 3. Face Verification Only
+
+Verify a face image against enrolled users without access decision logic.
+Useful for testing face matching independently.
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `POST` |
+| **URL** | `/api/face-verification/verify` |
+| **Content-Type** | `multipart/form-data` |
+| **Authentication** | `Authorization: Bearer <token>` |
+
+### Multipart Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `image` | File | Yes | JPEG or PNG face image. |
+
+### Success Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Face matched successfully",
+  "data": {
+    "faceMatched": true,
+    "confidence": 0.87,
+    "message": "Face matched",
+    "matchedUserId": 42,
+    "matchedUserName": "Alice Johnson"
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### No Match Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "No matching face found",
+  "data": {
+    "faceMatched": false,
+    "confidence": 0.15,
+    "message": "No matching face found",
+    "matchedUserId": null,
+    "matchedUserName": null
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### curl Example
+
+```bash
+curl -X POST https://cityparking-api.onrender.com/api/face-verification/verify \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+  -F "image=@/tmp/capture.jpg"
+```
+
+---
+
+## 4. Check Face Enrollment Status
+
+Check whether a user has completed face enrollment.
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `GET` |
+| **URL** | `/api/face-enrollment/status` |
+| **Content-Type** | N/A |
+| **Authentication** | `Authorization: Bearer <token>` |
+
+### Success Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Enrollment status retrieved",
+  "data": {
+    "enrolled": true,
+    "status": "ACTIVE",
+    "enrolledAt": "2026-06-15T14:30:00"
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### Not Enrolled Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "User not enrolled",
+  "data": {
+    "enrolled": false,
+    "status": "NOT_ENROLLED",
+    "enrolledAt": null
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### curl Example
+
+```bash
+curl -X GET https://cityparking-api.onrender.com/api/face-enrollment/status \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..."
+```
+
+---
+
+## 5. Plate Verification
+
+Verify a license plate image (for future gate integration with ANPR).
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `POST` |
+| **URL** | `/api/plate-verification/verify` |
+| **Content-Type** | `multipart/form-data` |
+| **Authentication** | `Authorization: Bearer <token>` |
+
+### Multipart Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `image` | File | Yes | JPEG or PNG license plate image. |
+
+### Success Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Plate verified successfully",
+  "data": {
+    "plateDetected": true,
+    "plateNumber": "ABC-1234",
+    "confidence": 0.95,
+    "vehicleRegistered": true,
+    "ownerName": "Alice Johnson"
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### curl Example
+
+```bash
+curl -X POST https://cityparking-api.onrender.com/api/plate-verification/verify \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+  -F "image=@/tmp/plate.jpg"
+```
+
+---
+
+## 6. Get Current User Profile
+
+Retrieve the authenticated device's user profile.
+
+### Request
+
+| Field | Value |
+|-------|-------|
+| **Method** | `GET` |
+| **URL** | `/api/users/me` |
+| **Authentication** | `Authorization: Bearer <token>` |
+
+### Success Response — `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "User profile retrieved",
+  "data": {
+    "id": 15,
+    "email": "gate-device@cityparking.edu",
+    "firstName": "Gate",
+    "lastName": "Device",
+    "role": "USER",
+    "createdAt": "2026-01-15T10:00:00"
+  },
+  "timestamp": "2026-07-04T08:30:00"
+}
+```
+
+### curl Example
+
+```bash
+curl -X GET https://cityparking-api.onrender.com/api/users/me \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..."
+```
+
+---
+
+## Recommended Future APIs
+
+The following endpoints do not currently exist but are recommended
+for future Raspberry Pi integration:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/gate/health` | `GET` | Pi health check ping (no auth) |
+| `/api/gate/config` | `GET` | Remote config pull (relay duration, thresholds) |
+| `/api/gate/logs` | `POST` | Batch upload local access logs |
+| `/api/gate/heartbeat` | `POST` | Periodic device status report |
+| `/api/gate/alerts` | `POST` | Report hardware faults (camera, relay) |
+
+**These endpoints are NOT implemented.** They are listed here as
+recommendations for future development.

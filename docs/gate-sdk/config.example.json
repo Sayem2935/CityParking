@@ -1,0 +1,23 @@
+{
+  "server_url": "https://cityparking-api.onrender.com/api",
+  "device_email": "gate-entrance-A@cityparking.edu",
+  "device_password": "CHANGE_ME_TO_STRONG_PASSWORD",
+
+  "camera_index": 0,
+  "capture_width": 640,
+  "capture_height": 480,
+  "capture_jpeg_quality": 85,
+
+  "relay_gpio_pin": 17,
+  "relay_duration_ms": 5000,
+
+  "led_red_pin": 27,
+  "led_green_pin": 22,
+
+  "request_timeout_sec": 30,
+  "max_retries": 5,
+  "initial_retry_delay_sec": 2,
+  "max_retry_delay_sec": 60,
+  "token_refresh_hours": 20,
+  "min_request_interval_sec": 2.0
+}
