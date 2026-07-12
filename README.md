@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <em>Daffodil International University · Department of Computer Science and Engineering</em>
+  <em>Daffodil International University · Department of Software Engineering</em>
 </p>
 
 <p align="center">
