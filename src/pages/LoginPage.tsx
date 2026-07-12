@@ -52,18 +52,18 @@ const LoginPage: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">CityParking</h1>
-                <p className="text-blue-200 text-xs font-medium tracking-wider uppercase">AI-Powered Platform</p>
+                <h1 className="text-2xl font-bold tracking-tight">DIU Intelligent Parking System</h1>
+                <p className="text-blue-200 text-xs font-medium tracking-wider uppercase">AI-Based University Parking</p>
               </div>
             </div>
 
             <h2 className="text-4xl font-bold leading-tight mb-4 tracking-tight">
-              Smart parking<br />
-              for modern cities
+              Smart parking for<br />
+              Daffodil International University
             </h2>
             <p className="text-blue-100/80 text-lg leading-relaxed max-w-md">
-              Experience the future of urban parking with AI-powered vehicle recognition, 
-              intelligent slot allocation, and heat map visualization.
+              Experience the future of university parking with AI-powered face verification, 
+              intelligent slot allocation, and multi-modal identity verification.
             </p>
           </div>
 
@@ -119,14 +119,14 @@ const LoginPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
               </svg>
             </div>
-            <span className="text-xl font-bold text-white">CityParking</span>
+            <span className="text-xl font-bold text-white">DIPS</span>
           </div>
 
           {/* Form card */}
           <div className="bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-zinc-800 p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white tracking-tight">Welcome back</h2>
-              <p className="text-zinc-500 mt-1 text-sm">Sign in to your CityParking account</p>
+              <p className="text-zinc-500 mt-1 text-sm">Sign in to your DIPS account</p>
             </div>
 
             {error && (
@@ -222,7 +222,7 @@ const LoginPage: React.FC = () => {
           {/* Footer */}
           <div className="mt-6">
             <p className="text-center text-xs text-zinc-600">
-              By signing in, you agree to CityParking's{' '}
+              By signing in, you agree to DIPS'{' '}
               <button type="button" className="underline hover:text-zinc-400 transition-colors">Terms of Service</button>
               {' '}and{' '}
               <button type="button" className="underline hover:text-zinc-400 transition-colors">Privacy Policy</button>

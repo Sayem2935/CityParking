@@ -1,4 +1,4 @@
-# CityParking API Documentation
+# DIU Intelligent Parking System (DIPS) — API Documentation
 
 **Version:** 1.0.0
 **Base URL:** `http://localhost:8080`

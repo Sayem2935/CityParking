@@ -1,6 +1,6 @@
 {
-  "server_url": "https://cityparking-api.onrender.com/api",
-  "device_email": "gate-entrance-A@cityparking.edu",
+  "server_url": "https://dips-api.onrender.com/api",
+  "device_email": "gate-entrance-A@dips.diu.edu.bd",
   "device_password": "CHANGE_ME_TO_STRONG_PASSWORD",
 
   "camera_index": 0,

@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Raspberry Pi Deployment Guide
+# DIPS Gate SDK — Raspberry Pi Deployment Guide
 
 Step-by-step guide to deploy the CityParking gate controller on a
 Raspberry Pi 4 (or 5) running Raspberry Pi OS (Bookworm or later).
@@ -103,8 +103,8 @@ RPi.GPIO>=0.7.1
 
 ```bash
 # Copy files to the Pi (from your development machine)
-scp docs/gate-sdk/raspberry_pi_sample.py pi@<PI_IP>:/opt/cityparking-gate/
-scp docs/gate-sdk/config.example.json pi@<PI_IP>:/opt/cityparking-gate/config.json
+scp docs/gate-sdk/raspberry_pi_sample.py pi@<PI_IP>:/opt/dips-gate/
+scp docs/gate-sdk/config.example.json pi@<PI_IP>:/opt/dips-gate/config.json
 
 # On the Pi, set permissions
 cd /opt/cityparking-gate
@@ -117,7 +117,7 @@ chmod +x raspberry_pi_sample.py
 
 ```bash
 # Edit config.json with your actual values
-nano /opt/cityparking-gate/config.json
+nano /opt/dips-gate/config.json
 ```
 
 **Minimum required changes:**
@@ -135,8 +135,8 @@ nano /opt/cityparking-gate/config.json
 **Secure the config file:**
 
 ```bash
-sudo chown root:root /opt/cityparking-gate/config.json
-sudo chmod 600 /opt/cityparking-gate/config.json
+sudo chown root:root /opt/dips-gate/config.json
+sudo chmod 600 /opt/dips-gate/config.json
 ```
 
 ---
@@ -226,7 +226,7 @@ sudo nano /etc/systemd/system/cityparking-gate.service
 
 ```ini
 [Unit]
-Description=CityParking Gate Controller
+Description=DIPS Gate Controller
 After=network-online.target
 Wants=network-online.target
 
@@ -235,7 +235,7 @@ Type=simple
 User=root
 Group=root
 WorkingDirectory=/opt/cityparking-gate
-ExecStart=/opt/cityparking-gate/venv/bin/python3 /opt/cityparking-gate/raspberry_pi_sample.py
+ExecStart=/opt/dips-gate/venv/bin/python3 /opt/cityparking-gate/raspberry_pi_sample.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -243,7 +243,7 @@ StandardError=journal
 SyslogIdentifier=cityparking-gate
 
 # Environment
-Environment=GATE_CONFIG=/opt/cityparking-gate/config.json
+Environment=GATE_CONFIG=/opt/dips-gate/config.json
 
 # Security hardening
 NoNewPrivileges=false
@@ -322,12 +322,12 @@ sudo nano /etc/logrotate.d/cityparking-gate
 ### Automated Health Check Script
 
 ```bash
-sudo nano /opt/cityparking-gate/healthcheck.sh
+sudo nano /opt/dips-gate/healthcheck.sh
 ```
 
 ```bash
 #!/bin/bash
-# CityParking Gate Controller Health Check
+# DIPS Gate Controller Health Check
 
 SERVICE="cityparking-gate"
 LOG_FILE="/var/log/gate-health.log"
@@ -367,11 +367,11 @@ check_network || echo "$(date): Network check FAILED" >> $LOG_FILE
 ```
 
 ```bash
-chmod +x /opt/cityparking-gate/healthcheck.sh
+chmod +x /opt/dips-gate/healthcheck.sh
 
 # Run every 5 minutes via cron
 crontab -e
-# Add: */5 * * * * /opt/cityparking-gate/healthcheck.sh
+# Add: */5 * * * * /opt/dips-gate/healthcheck.sh
 ```
 
 ---
@@ -401,7 +401,7 @@ To update the gate controller software remotely:
 
 ```bash
 # From your development machine
-scp raspberry_pi_sample.py pi@192.168.1.100:/opt/cityparking-gate/
+scp raspberry_pi_sample.py pi@192.168.1.100:/opt/dips-gate/
 
 # On the Pi (or via SSH)
 ssh pi@192.168.1.100

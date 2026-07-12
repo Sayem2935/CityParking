@@ -1,8 +1,8 @@
-# CityParking — System Architecture Document
+# DIU Intelligent Parking System (DIPS) — System Architecture Document
 
 > **Version:** 1.0  
 > **Last Updated:** June 2026  
-> **Repository:** https://github.com/Sayem2935/CityParking.git
+> **Repository:** https://github.com/Sayem2935/DIPS.git
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## 1. High-Level Architecture
 
-CityParking is a full-stack intelligent parking management system built with a **React + TypeScript SPA** frontend and a **Spring Boot** backend, backed by **PostgreSQL** and integrated with **AWS Rekognition** (face recognition) and **Google Gemini** (AI document analysis & plate recognition).
+CityParking (DIPS) is a full-stack intelligent parking management system built with a **React + TypeScript SPA** frontend and a **Spring Boot** backend, backed by **PostgreSQL** and integrated with **AWS Rekognition** (face recognition) and **Google Gemini** (AI document analysis & plate recognition). Developed for Daffodil International University.
 
 ```mermaid
 graph TB

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Shield background -->
+  <path d="M32 4 L56 14 L56 36 C56 48 44 58 32 62 C20 58 8 48 8 36 L8 14 Z" fill="#0f2b5b"/>
+  
+  <!-- P letter -->
+  <text x="17" y="46" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="800" font-size="34" fill="white">P</text>
+  
+  <!-- AI node dots -->
+  <circle cx="44" cy="20" r="2.5" fill="#10b981"/>
+  <circle cx="48" cy="28" r="2" fill="#10b981"/>
+  <circle cx="40" cy="28" r="2" fill="#10b981"/>
+  <line x1="44" y1="20" x2="48" y2="28" stroke="#10b981" stroke-width="1.2" opacity="0.7"/>
+  <line x1="44" y1="20" x2="40" y2="28" stroke="#10b981" stroke-width="1.2" opacity="0.7"/>
+</svg>

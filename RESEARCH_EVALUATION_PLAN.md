@@ -1,4 +1,4 @@
-# Research Evaluation Plan — CityParking Face Recognition System
+# Research Evaluation Plan — DIPS Face Recognition System
 
 **System Under Evaluation:** RetinaFace (detection) + ArcFace w600k_r50 (recognition) + Cosine Similarity (matching)
 **Target Application:** University parking access control via facial verification

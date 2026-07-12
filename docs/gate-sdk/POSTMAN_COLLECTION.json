@@ -1,9 +1,9 @@
 {
   "info": {
-    "name": "CityParking Gate SDK",
+    "name": "DIPS Gate SDK",
     "description": "Postman collection for the Raspberry Pi gate device API endpoints.\n\nIncludes authentication, gate verification, face verification, and enrollment status endpoints.\n\nUsage:\n1. Set the {{base_url}} variable to your backend URL\n2. Run the 'Login' request first to obtain a JWT token\n3. The token is automatically saved to the {{jwt_token}} variable\n4. All other requests use {{jwt_token}} in the Authorization header",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "cityparking-gate-sdk"
+    "_exporter_id": "dips-gate-sdk"
   },
   "auth": {
     "type": "bearer",
@@ -18,7 +18,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "https://cityparking-api.onrender.com/api",
+      "value": "https://dips-api.onrender.com/api",
       "type": "string"
     },
     {
@@ -50,7 +50,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"gate-entrance-A@cityparking.edu\",\n  \"password\": \"your-password-here\"\n}",
+              "raw": "{\n  \"email\": \"gate-entrance-A@dips.diu.edu.bd\",\n  \"password\": \"your-password-here\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -101,7 +101,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"gate-entrance-A@cityparking.edu\",\n  \"password\": \"wrong-password\"\n}",
+              "raw": "{\n  \"email\": \"gate-entrance-A@dips.diu.edu.bd\",\n  \"password\": \"wrong-password\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

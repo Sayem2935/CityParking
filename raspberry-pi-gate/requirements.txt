@@ -1,0 +1,17 @@
+# CityParking Raspberry Pi Gate Device - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core HTTP client
+requests>=2.31.0,<3.0.0
+
+# Image processing and camera
+opencv-python-headless>=4.8.0,<5.0.0
+numpy>=1.24.0,<2.0.0
+
+# Raspberry Pi GPIO (optional - only needed on actual Pi hardware)
+# Install separately: pip install RPi.GPIO
+# RPi.GPIO>=0.7.0
+
+# Pi Camera support (optional - only needed for Pi Camera module)
+# Install separately: pip install picamera2
+# picamera2>=0.3.12

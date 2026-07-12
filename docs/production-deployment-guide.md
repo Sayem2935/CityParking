@@ -1,4 +1,4 @@
-# CityParking — Production Deployment Guide
+# DIPS — Production Deployment Guide
 
 **Version:** 1.0  
 **Last Updated:** 2026-06-09  

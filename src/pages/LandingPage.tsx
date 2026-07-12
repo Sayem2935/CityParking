@@ -135,7 +135,7 @@ const LandingPage: React.FC = () => {
             </svg>
           </div>
           <span className="text-lg font-bold tracking-tight">
-            City<span className="text-blue-400">Parking</span>
+            DIU<span className="text-blue-400">PS</span>
           </span>
         </div>
 
@@ -171,7 +171,7 @@ const LandingPage: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-8"
         >
           <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-          <span className="text-xs font-medium text-blue-300 tracking-wide uppercase">AI-Powered Smart Parking Platform</span>
+          <span className="text-xs font-medium text-blue-300 tracking-wide uppercase">AI-Based Smart University Parking Platform</span>
         </motion.div>
 
         <motion.h1
@@ -184,7 +184,7 @@ const LandingPage: React.FC = () => {
           Intelligent Parking
           <br />
           <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-            Powered by AI
+            for Daffodil International University
           </span>
         </motion.h1>
 
@@ -196,7 +196,7 @@ const LandingPage: React.FC = () => {
           className="mt-6 text-lg md:text-xl text-zinc-500 text-center max-w-2xl leading-relaxed"
         >
           Real-time vehicle detection, face recognition access, occupancy heat map visualization,
-          and university ID extraction — all in one platform.
+          and university ID verification — all in one platform for DIU.
         </motion.p>
 
         <motion.div
@@ -252,7 +252,7 @@ const LandingPage: React.FC = () => {
             className="text-center mb-16"
           >
             <span className="text-xs font-semibold tracking-widest uppercase text-red-400 mb-4 block">The Problem</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Urban Parking is Broken</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">University Parking is Broken</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -446,10 +446,10 @@ const LandingPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-zinc-500">CityParking</span>
+            <span className="text-sm font-semibold text-zinc-500">DIPS</span>
           </div>
           <p className="text-xs text-zinc-600">
-            AI-Powered Smart Parking Management Platform
+            AI-Based Smart University Parking Access Control — Daffodil International University
           </p>
         </div>
       </footer>

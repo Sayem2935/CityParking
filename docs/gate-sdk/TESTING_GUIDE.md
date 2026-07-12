@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Testing Guide
+# DIPS Gate SDK — Testing Guide
 
 Comprehensive testing procedures for the Raspberry Pi gate controller
 before deployment and during maintenance.
@@ -237,7 +237,7 @@ Create a test script to verify the API without the Pi hardware:
 
 ```bash
 #!/bin/bash
-# test_gate_api.sh — Run against the CityParking backend
+# test_gate_api.sh — Run against the DIPS backend
 
 SERVER="https://cityparking-api.onrender.com/api"
 EMAIL="gate-entrance-A@cityparking.edu"

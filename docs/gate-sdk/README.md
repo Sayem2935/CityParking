@@ -1,4 +1,4 @@
-# CityParking — Raspberry Pi Gate Device SDK
+# DIPS — Raspberry Pi Gate Device SDK
 
 ## Version
 
@@ -7,9 +7,9 @@
 ## Overview
 
 This SDK provides everything needed to build a Raspberry Pi gate controller
-for the CityParking Smart Campus Parking system.
+for the DIU Intelligent Parking System (DIPS).
 
-The Raspberry Pi captures a face image, sends it to the CityParking backend,
+The Raspberry Pi captures a face image, sends it to the DIPS backend,
 and receives an ALLOW / DENY decision. If ALLOW, the Pi activates a relay
 to open the gate barrier.
 
@@ -72,7 +72,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "gate-device@cityparking.edu",
+  "email": "gate-device@dips.diu.edu.bd",
   "password": "device-password"
 }
 ```
@@ -87,7 +87,7 @@ Content-Type: application/json
     "token": "eyJhbGciOiJIUzI1NiJ9...",
     "type": "Bearer",
     "id": 15,
-    "email": "gate-device@cityparking.edu",
+    "email": "gate-device@dips.diu.edu.bd",
     "firstName": "Gate",
     "lastName": "Device",
     "role": "USER"

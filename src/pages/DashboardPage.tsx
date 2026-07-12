@@ -166,7 +166,7 @@ const DashboardPage: React.FC = () => {
             {greeting}, {firstName} 👋
           </h1>
           <p className="mt-1 text-blue-100/80 text-sm">
-            Welcome to Smart Campus Parking
+            Welcome to DIU Intelligent Parking System
           </p>
 
           {/* Verification badges */}

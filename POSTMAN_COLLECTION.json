@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "CityParking API",
-    "description": "CityParking University Parking Management System API",
+    "name": "DIPS API",
+    "description": "DIU Intelligent Parking System API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

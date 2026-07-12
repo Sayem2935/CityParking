@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <!-- Background shield shape -->
+  <path d="M200 20 L360 80 L360 220 C360 300 280 370 200 390 C120 370 40 300 40 220 L40 80 Z" fill="#0f2b5b" stroke="#1a4a8a" stroke-width="2"/>
+  
+  <!-- Inner shield highlight -->
+  <path d="M200 40 L340 92 L340 215 C340 285 270 348 200 366 C130 348 60 285 60 215 L60 92 Z" fill="#122f5f" stroke="#1a4a8a" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Parking "P" letterform -->
+  <text x="148" y="260" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="800" font-size="180" fill="white" letter-spacing="-8">P</text>
+  
+  <!-- AI neural network nodes (top right) -->
+  <!-- Node connections -->
+  <line x1="280" y1="100" x2="310" y2="140" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <line x1="280" y1="100" x2="250" y2="140" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <line x1="310" y1="140" x2="280" y2="180" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <line x1="250" y1="140" x2="280" y2="180" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <line x1="310" y1="140" x2="330" y2="180" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+  
+  <!-- AI nodes -->
+  <circle cx="280" cy="100" r="6" fill="#10b981"/>
+  <circle cx="310" cy="140" r="5" fill="#10b981"/>
+  <circle cx="250" cy="140" r="5" fill="#10b981"/>
+  <circle cx="280" cy="180" r="6" fill="#10b981"/>
+  <circle cx="330" cy="180" r="4" fill="#10b981" opacity="0.6"/>
+  
+  <!-- Pulsing center node -->
+  <circle cx="280" cy="140" r="3" fill="#34d399" opacity="0.8"/>
+  
+  <!-- University cap icon (top center) -->
+  <path d="M200 60 L170 78 L200 96 L230 78 Z" fill="#10b981" opacity="0.9"/>
+  <path d="M175 82 L175 100 L200 112 L225 100 L225 82" fill="none" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <line x1="200" y1="96" x2="200" y2="115" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+</svg>

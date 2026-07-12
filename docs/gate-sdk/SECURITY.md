@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Security Guide
+# DIPS Gate SDK — Security Guide
 
 This document covers the security architecture, best practices, and
 hardening recommendations for the Raspberry Pi gate device.

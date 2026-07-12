@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: parking-user
+    name: dips
     runtime: static
     buildCommand: npm run build
     staticPublishPath: ./dist

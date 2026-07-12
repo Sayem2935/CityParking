@@ -50,7 +50,7 @@ public class StartupValidator {
     @PostConstruct
     public void validate() {
         log.info("═══════════════════════════════════════════════════");
-        log.info("  CityParking Backend - Startup Validation");
+        log.info("  DIPS Backend - Startup Validation");
         log.info("═══════════════════════════════════════════════════");
 
         List<String> errors = new ArrayList<>();

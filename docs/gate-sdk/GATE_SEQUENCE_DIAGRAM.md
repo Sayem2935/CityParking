@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Sequence Diagrams
+# DIPS Gate SDK — Sequence Diagrams
 
 All diagrams use [Mermaid](https://mermaid.js.org/) syntax.
 

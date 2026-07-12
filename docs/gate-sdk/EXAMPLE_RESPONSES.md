@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Example API Responses
+# DIPS Gate SDK — Example API Responses
 
 Realistic JSON examples for every scenario the Raspberry Pi gate device
 may encounter. All responses use the standard `ApiResponse<T>` wrapper.

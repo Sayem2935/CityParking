@@ -54,9 +54,9 @@ const Sidebar: React.FC = () => {
           {!collapsed && (
             <div className="animate-fade-in">
               <h1 className="text-sm font-bold text-zinc-100 tracking-tight leading-none">
-                CityParking
+                DIPS
               </h1>
-              <p className="text-2xs text-zinc-500 mt-0.5">Smart Campus</p>
+              <p className="text-2xs text-zinc-500 mt-0.5">DIU Parking</p>
             </div>
           )}
         </div>

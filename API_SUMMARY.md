@@ -1,4 +1,4 @@
-# CityParking API Summary
+# DIPS API Summary
 
 **Last Updated:** 2026-06-14
 **Total Active Endpoints:** 20

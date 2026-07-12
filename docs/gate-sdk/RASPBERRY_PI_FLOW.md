@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Raspberry Pi Firmware Flow
+# DIPS Gate SDK — Raspberry Pi Firmware Flow
 
 This document describes the complete operational flow of the Raspberry Pi
 gate controller, from power-on to gate operation.

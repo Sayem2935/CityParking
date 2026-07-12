@@ -1,4 +1,4 @@
-# CityParking Gate SDK — Error Codes Reference
+# DIPS Gate SDK — Error Codes Reference
 
 Complete reference of all error codes the Raspberry Pi gate device may encounter.
 

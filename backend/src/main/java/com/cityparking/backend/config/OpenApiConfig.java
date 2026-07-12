@@ -16,12 +16,12 @@ public class OpenApiConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("AI Parking System API")
-                        .description("Backend API for the AI Parking System. Provides authentication, vehicle management, and face enrollment endpoints.")
+                        .title("DIU Intelligent Parking System API")
+                        .description("Backend API for the DIU Intelligent Parking System (DIPS). Provides authentication, vehicle management, face enrollment, university ID verification, and parking access control endpoints.")
                         .version("1.0.0")
                         .contact(new Contact()
-                                .name("CityParking Team")
-                                .email("support@cityparking.com")))
+                                .name("DIPS Team")
+                                .email("dips@diu.edu.bd")))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components()
                         .addSecuritySchemes("Bearer Authentication",

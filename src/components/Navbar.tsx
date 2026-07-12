@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-brand text-white">
             <ParkingSquare className="w-4 h-4" />
           </div>
-          <span className="text-sm font-bold text-zinc-100">CityParking</span>
+          <span className="text-sm font-bold text-zinc-100">DIPS</span>
         </div>
 
         {/* Left — Desktop spacer */}

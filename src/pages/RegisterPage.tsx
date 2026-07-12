@@ -55,12 +55,12 @@ const RegisterPage: React.FC = () => {
                 🚗
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">City Parking</h1>
-                <p className="text-blue-200 text-sm">AI-Powered Smart Parking</p>
+                <h1 className="text-2xl font-bold tracking-tight">DIU Intelligent Parking System</h1>
+                <p className="text-blue-200 text-sm">AI-Based University Parking Access Control</p>
               </div>
             </div>
             <h2 className="text-3xl font-bold leading-tight mb-4">
-              Join the smart<br />parking revolution
+              Join the smart<br />university parking system
             </h2>
             <p className="text-blue-100 text-base leading-relaxed max-w-sm">
               Create your account and experience AI-powered parking management.
@@ -95,12 +95,12 @@ const RegisterPage: React.FC = () => {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-white text-xl">🚗</div>
-            <span className="text-xl font-bold text-zinc-100">City Parking</span>
+            <span className="text-xl font-bold text-zinc-100">DIPS</span>
           </div>
 
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-zinc-100">Create your account</h2>
-            <p className="text-zinc-500 mt-1">Get started with City Parking in seconds</p>
+            <p className="text-zinc-500 mt-1">Get started with DIPS in seconds</p>
           </div>
 
           {error && (
@@ -204,7 +204,7 @@ const RegisterPage: React.FC = () => {
             <div className="flex items-start gap-2">
               <input type="checkbox" className="mt-1 h-4 w-4 rounded border-white/20 text-blue-500 focus:ring-blue-500" required />
               <span className="text-sm text-zinc-500">
-                I agree to City Parking's{' '}
+                I agree to DIPS'{' '}
                 <button type="button" className="text-blue-500 hover:underline">Terms of Service</button>
                 {' '}and{' '}
                 <button type="button" className="text-blue-500 hover:underline">Privacy Policy</button>

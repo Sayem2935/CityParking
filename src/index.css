@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 /* ============================================
-   CityParking Design System
-   Modern University Parking App
+   DIPS Design System
+   DIU Intelligent Parking System
    ============================================ */
 
 :root {
-  /* ── Brand Colors (Parking Blue) ── */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --color-brand-950: #172554;
+  /* ── Brand Colors (DIU Deep Blue) ── */
+  --color-brand-50: #e8edf5;
+  --color-brand-100: #c5d1e8;
+  --color-brand-200: #9eb3d9;
+  --color-brand-300: #7795ca;
+  --color-brand-400: #5a7fbe;
+  --color-brand-500: #1a4a8a;
+  --color-brand-600: #163f76;
+  --color-brand-700: #0f2b5b;
+  --color-brand-800: #0b2248;
+  --color-brand-900: #071935;
+  --color-brand-950: #040e20;
 
   /* ── Surface Colors (Dark Theme) ── */
   --color-surface-50: #09090b;
@@ -137,11 +137,11 @@
 @layer components {
   /* ── Gradient backgrounds ── */
   .gradient-brand {
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+    background: linear-gradient(135deg, #0f2b5b 0%, #1a4a8a 50%, #5a7fbe 100%);
   }
 
   .gradient-brand-subtle {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #071935 0%, #0f2b5b 100%);
   }
 
   .gradient-surface {
